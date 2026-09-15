@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos Disponibles - U.E.F. Pablo Hannibal Vela Egüéz</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- 1. BARRA DE NAVEGACIÓN (Mantenida del index) -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            U.E.F. "Pablo Hannibal Vela Egüéz"
+        </div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn-nav">Inicio</a>
+            <a href="admin.html" class="btn-nav btn-admin">Administración</a>
+        </div>
+    </nav>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="main-container">
+        
+        <header class="section-header">
+            <h2>Eventos Institucionales Disponibles</h2>
+            <p>Selecciona un evento para solicitar y reservar tu ticket de asistencia.</p>
+        </header>
+
+        <!-- CONTENEDOR DE TARJETAS (Disposición 2x2 mediante CSS Grid) -->
+        <section id="eventosGrid" class="eventos-grid">
+            <!-- Los eventos se cargan dinámicamente aquí mediante JS -->
+        </section>
+
+    </main>
+
+    <!-- 2. VENTANA MODAL / FORMULARIO DE RESERVA -->
+    <div id="modalReserva" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarModal()">&times;</span>
+            <h3 id="modalTituloEvento">Reservar Ticket</h3>
+            
+            <form id="formReserva" class="form-reserva">
+                <input type="hidden" id="eventoId">
+
+                <div class="form-group">
+                    <label for="nombreReserva">Nombre Completo:</label>
+                    <input type="text" id="nombreReserva" placeholder="Ej. Juan Pérez" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cedulaReserva">Cédula o Matrícula:</label>
+                    <input type="text" id="cedulaReserva" placeholder="Ej. 0987654321" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="correoReserva">Correo Electrónico:</label>
+                    <input type="email" id="correoReserva" placeholder="ejemplo@correo.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cantidadTickets">Cantidad de Tickets:</label>
+                    <input type="number" id="cantidadTickets" min="1" max="5" value="1" required>
+                </div>
+
+                <button type="submit" class="btn-submit">Confirmar Reserva</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer>
+        <p>&copy; 2026 U.E.F. "Pablo Hannibal Vela Egüéz" - Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Script para renderizar y reservar -->
+    <script src="js/eventos.js"></script>
+</body>
+</html>

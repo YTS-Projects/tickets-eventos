@@ -1,0 +1,501 @@
+/* ==========================================
+   VARIABLES DE COLOR Y ESTILOS GENERALES
+   ========================================== */
+:root {
+    --color-primario: #1a365d;       /* Azul marino institucional */
+    --color-secundario: #2b6cb0;     /* Azul suave para enlaces/acentos */
+    --color-fondo: #f7fafc;          /* Gris muy claro para el fondo */
+    --color-tarjeta: #ffffff;        /* Blanco para contenidos */
+    --color-texto: #2d3748;          /* Gris oscuro para lectura cómoda */
+    --color-texto-suave: #718096;    /* Gris medio para textos secundarios */
+    --color-acento: #d69e2e;         /* Dorado suave para botones destacados */
+    --color-acento-hover: #b7791f;   /* Dorado más oscuro al pasar el cursor */
+    --sombra-suave: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --sombra-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ==========================================
+   1. BARRA DE NAVEGACIÓN
+   ========================================== */
+.navbar {
+    background-color: var(--color-primario);
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    box-shadow: var(--sombra-suave);
+}
+
+.nav-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-nav {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.btn-nav:hover {
+    background-color: var(--color-secundario);
+}
+
+.btn-admin {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ==========================================
+   CONTENEDOR PRINCIPAL Y LOGO
+   ========================================== */
+.main-container {
+    flex: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 90%;
+    padding: 2.5rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 2. LOGO INSTITUCIONAL CENTRADO */
+.logo-section {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.logo-img {
+    max-width: 220px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: var(--sombra-suave);
+    background-color: var(--color-tarjeta);
+    padding: 10px;
+    transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+    transform: scale(1.02);
+}
+
+/* ==========================================
+   3. CARRUSEL DE EVENTOS
+   ========================================== */
+.carousel-section {
+    width: 100%;
+    text-align: center;
+}
+
+.carousel-section h2 {
+    color: var(--color-primario);
+    margin-bottom: 1.2rem;
+    font-size: 1.6rem;
+}
+
+.carousel-container {
+    background: linear-gradient(135deg, var(--color-primario), var(--color-secundario));
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: var(--sombra-suave);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.carousel-container:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sombra-hover);
+}
+
+.slide-content h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.slide-content p {
+    font-size: 1.1rem;
+    color: #e2e8f0;
+    margin-bottom: 1.5rem;
+}
+
+.btn-carrusel {
+    display: inline-block;
+    background-color: var(--color-acento);
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.carousel-container:hover .btn-carrusel {
+    background-color: var(--color-acento-hover);
+}
+
+/* ==========================================
+   PIE DE PÁGINA
+   ========================================== */
+footer {
+    background-color: var(--color-primario);
+    color: var(--color-texto-suave);
+    text-align: center;
+    padding: 1.2rem;
+    font-size: 0.9rem;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+footer p {
+    color: #cbd5e0;
+}
+
+
+
+
+/* ==========================================
+   SECCIÓN DE EVENTOS Y GRID (2 EN 2)
+   ========================================== */
+.section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    color: var(--color-primario);
+    font-size: 1.8rem;
+}
+
+.section-header p {
+    color: var(--color-texto-suave);
+}
+
+.eventos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Organiza de 2 en 2 */
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* En pantallas pequeñas pasa a 1 columna automáticamente */
+@media (max-width: 768px) {
+    .eventos-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================
+   TARJETA DE EVENTO CON IMAGEN (1/3 PROPORCIÓN)
+   ========================================== */
+.card-evento {
+    background-color: var(--color-tarjeta);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: var(--sombra-suave);
+    display: flex;
+    flex-direction: column;         /* Estructura vertical */
+    justify-content: space-between; /* Distribución de espacio */
+    border-left: 5px solid var(--color-secundario);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    height: 100%;                  /* Ocupa todo el alto disponible de la celda */
+}
+
+.card-evento:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sombra-hover);
+}
+
+/* El título se mantiene intacto arriba */
+.card-evento h3 {
+    color: var(--color-primario);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+/* Contenedor flexible para dividir el cuerpo central */
+.card-body {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Contenedor de la imagen: ocupa exactamente 1/3 del espacio disponible */
+.card-img-container {
+    flex: 0 0 33.33%;
+    max-width: 33.33%;
+    height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #edf2f7;
+}
+
+.card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ajusta la imagen sin deformarla */
+}
+
+/* Información del evento: ocupa los 2/3 restantes */
+.card-info {
+    flex: 1;
+}
+
+.card-info p {
+    font-size: 0.9rem;
+    color: var(--color-texto);
+    margin-bottom: 0.35rem;
+}
+
+.card-info span {
+    font-weight: 600;
+    color: var(--color-primario);
+}
+
+/* Pie de la tarjeta: Empujado al fondo y alineado a la derecha */
+.card-footer {
+    margin-top: auto;              /* Empuja el contenedor al fondo */
+    padding-top: 1rem;             /* Separación con la información */
+    display: flex;
+    justify-content: flex-end;     /* Alinea el botón a la extrema derecha */
+    width: 100%;
+}
+
+/* ==========================================
+   BOTÓN RESERVAR (COLOR DORADO INSTITUCIONAL)
+   ========================================== */
+.btn-reservar {
+    background-color: var(--color-acento); /* Color dorado/miel definido en :root */
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-reservar:hover {
+    background-color: var(--color-acento-hover); /* Tono dorado más oscuro */
+    transform: translateY(-1px);
+}
+
+/* ==========================================
+   VENTANA MODAL (FORMULARIO EMERGENTE)
+   ========================================== */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0, 0, 0, 0.5); 
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--color-tarjeta);
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: var(--sombra-hover);
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--color-texto-suave);
+    cursor: pointer;
+}
+
+.form-reserva {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: var(--color-primario);
+}
+
+.form-group input {
+    padding: 0.6rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 5px;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: var(--color-secundario);
+}
+
+.btn-submit {
+    background-color: var(--color-primario);
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.btn-submit:hover {
+    background-color: var(--color-secundario);
+}
+
+
+
+
+
+
+
+
+
+
+/* ==========================================
+   PANEL ADMINISTRADOR: SIMETRÍA Y 7 EVENTOS
+   ========================================== */
+
+/* Alineación en cuadrícula */
+.admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    width: 100%;
+    align-items: stretch; /* Estira ambas tarjetas para que tengan exactamente la misma altura */
+}
+
+@media (max-width: 850px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tarjetas principales ajustadas con Flexbox */
+.admin-card {
+    background-color: var(--color-tarjeta);
+    padding: 1.8rem;
+    border-radius: 10px;
+    box-shadow: var(--sombra-suave);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribuye el contenido uniformemente */
+}
+
+.admin-card h3 {
+    color: var(--color-primario);
+    margin-bottom: 0.3rem;
+}
+
+/* LISTA DE EVENTOS: AJUSTADA EXACTAMENTE A 7 ELEMENTOS */
+.admin-event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-height: 580px;    /* Altura ajustada para albergar hasta 7 tarjetas de eventos */
+    overflow-y: auto;     /* Activa la barra de desplazamiento a partir del 8vo evento */
+    padding-right: 6px;
+    margin-top: 0.8rem;
+    flex: 1;              /* Ocupa el espacio disponible proporcionalmente */
+}
+
+/* Estilos de la barra de desplazamiento */
+.admin-event-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-event-list::-webkit-scrollbar-track {
+    background: #edf2f7;
+    border-radius: 4px;
+}
+
+.admin-event-list::-webkit-scrollbar-thumb {
+    background: var(--color-secundario);
+    border-radius: 4px;
+}
+
+/* ELEMENTOS INDIVIDUALES DE LA LISTA */
+.admin-event-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 0.9rem; /* Padding optimizado */
+    background-color: var(--color-fondo);
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.admin-event-item-info strong {
+    color: var(--color-primario);
+    font-size: 0.9rem;
+}
+
+.admin-event-item-info span {
+    font-size: 0.8rem;
+    color: var(--color-texto-suave);
+    display: block;
+    margin-top: 2px;
+}
+
+.btn-eliminar {
+    background-color: #e53e3e;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-eliminar:hover {
+    background-color: #c53030;
+}

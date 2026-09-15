@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - U.E.F. Pablo Hannibal Vela Egüéz</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            U.E.F. "Pablo Hannibal Vela Egüéz"
+        </div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn-nav">Inicio</a>
+            <a href="eventos.html" class="btn-nav">Ver Eventos</a>
+        </div>
+    </nav>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="main-container">
+        
+        <header class="section-header">
+            <h2>Panel de Administración</h2>
+            <p>Gestiona y administra los eventos institucionales.</p>
+        </header>
+
+        <!-- CONTENEDOR EN 2 COLUMNAS -->
+        <div class="admin-grid">
+
+            <!-- COLUMNA IZQUIERDA: FORMULARIO -->
+            <section class="admin-card">
+                <h3>Agregar Nuevo Evento</h3>
+                <form id="formAgregarEvento" class="form-reserva" style="margin-top: 1rem;">
+                    
+                    <div class="form-group">
+                        <label for="tituloEvento">Título del Evento:</label>
+                        <input type="text" id="tituloEvento" placeholder="Ej. Casa Abierta de Ciencias" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fechaEvento">Fecha del Evento:</label>
+                        <input type="date" id="fechaEvento" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horaEvento">Hora del Evento:</label>
+                        <input type="text" id="horaEvento" placeholder="Ej. 09:00 AM" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lugarEvento">Lugar / Ubicación:</label>
+                        <input type="text" id="lugarEvento" placeholder="Ej. Auditorio Principal o Patio" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="aforoEvento">Aforo (Cupos Disponibles):</label>
+                        <input type="number" id="aforoEvento" min="1" placeholder="Ej. 100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="imagenEvento">Imagen / Afiche del Evento:</label>
+                        <input type="file" id="imagenEvento" accept="image/*">
+                    </div>
+
+                    <button type="submit" class="btn-submit" style="margin-top: 0.5rem;">Agregar Evento</button>
+                </form>
+            </section>
+
+            <!-- COLUMNA DERECHA: LISTADO DE EVENTOS APERTURADOS -->
+            <section class="admin-card">
+                <h3>Eventos Aperturados</h3>
+
+                <!-- LISTA CON SCROLL DESDE EL 8.º ELEMENTO -->
+                <div id="listaEventosAdmin" class="admin-event-list">
+                    <!-- Se cargan dinámicamente con JS -->
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- VENTANA MODAL / CÓDIGO DE ADMINISTRADOR -->
+    <div id="modalAuth" class="modal">
+        <div class="modal-content" style="max-width: 350px;">
+            <span class="close-modal" onclick="cerrarModalAuth()">&times;</span>
+            <h3>Confirmar Acción</h3>
+            <p id="modalMensajeAccion" style="font-size: 0.9rem; color: var(--color-texto-suave); margin-top: 0.5rem;">
+                Ingresa el código de autorización para continuar.
+            </p>
+            
+            <form id="formAuth" class="form-reserva" style="margin-top: 1rem;">
+                <div class="form-group">
+                    <label for="codigoAdmin">Código PIN:</label>
+                    <input type="password" id="codigoAdmin" placeholder="Ej. 1234" required style="text-align: center; letter-spacing: 2px;">
+                </div>
+
+                <button type="submit" class="btn-submit">Validar y Confirmar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer>
+        <p>&copy; 2026 U.E.F. "Pablo Hannibal Vela Egüéz" - Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Script de administración -->
+    <script src="js/admin.js"></script>
+</body>
+</html>
