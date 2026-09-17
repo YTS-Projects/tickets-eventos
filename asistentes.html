@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistentes Registrados - U.E.F. Pablo Hannibal Vela Egüéz</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <header>
+        <nav class="navbar" aria-label="Navegación principal">
+            <div class="nav-brand">
+                U.E.F. "Pablo Hannibal Vela Egüéz"
+            </div>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn-nav">Inicio</a>
+                <a href="eventos.html" class="btn-nav">Ver Eventos</a>
+                <a href="asistentes.html" class="btn-nav active">Registrados</a>
+                <a href="admin.html" class="btn-nav btn-admin">Administración</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="main-container">
+        
+        <header class="section-header" style="text-align: center;">
+            <h2>Control de Asistentes por Evento</h2>
+            <p>Selecciona un evento para consultar el listado detallado de personas reservadas.</p>
+        </header>
+
+        <!-- TARJETAS DE EVENTOS (2 COLUMNAS) -->
+        <div id="eventosAsistentesGrid" class="eventos-grid-dos-columnas">
+            <!-- Se cargan dinámicamente desde JS -->
+        </div>
+
+    </main>
+
+    <!-- MODAL PARA VER LISTA DE REGISTRADOS -->
+    <div id="modalAsistentes" class="modal">
+        <div class="modal-content modal-asistentes-ancho">
+            
+            <span class="close-modal" onclick="cerrarModalAsistentes()">&times;</span>
+
+            <h3 id="modalTituloEvento" class="modal-titulo-evento">
+                Asistentes Registrados
+            </h3>
+
+            <!-- RESUMEN RÁPIDO DE RESERVAS -->
+            <div id="resumenEvento" class="resumen-evento-info">
+                <!-- Se llena con JS -->
+            </div>
+
+            <!-- CONTENEDOR CON SCROLL PARA LA TABLA -->
+            <div class="tabla-asistentes-container">
+                <table class="tabla-asistentes">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Nombre Completo</th>
+                            <th>Identificación</th>
+                            <th>Correo</th>
+                            <th class="texto-centro">Tickets</th>
+                            <th>Fecha Reserva</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaAsistentesBody">
+                        <!-- Se renderiza desde JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer-acciones">
+                <button type="button" onclick="cerrarModalAsistentes()" class="btn-cerrar-modal">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer>
+        <p>&copy; 2026 U.E.F. "Pablo Hannibal Vela Egüéz" - Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Script de asistentes -->
+    <script src="js/asistentes.js"></script>
+</body>
+</html>

@@ -106,57 +106,48 @@ body {
 }
 
 /* ==========================================
-   3. CARRUSEL DE EVENTOS
+   3. CARRUSEL DE EVENTOS Y BOTÓN UNIFICADO
    ========================================== */
 .carousel-section {
     width: 100%;
     text-align: center;
 }
 
-.carousel-section h2 {
-    color: var(--color-primario);
-    margin-bottom: 1.2rem;
-    font-size: 1.6rem;
-}
-
-.carousel-container {
-    background: linear-gradient(135deg, var(--color-primario), var(--color-secundario));
-    border-radius: 12px;
-    padding: 3rem 2rem;
-    color: #ffffff;
-    cursor: pointer;
-    box-shadow: var(--sombra-suave);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.carousel-container:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--sombra-hover);
+.carousel-slides-container {
+    padding: 1.5rem;
+    text-align: center;
 }
 
 .slide-content h3 {
-    font-size: 1.8rem;
-    margin-bottom: 0.8rem;
+    font-size: 1.4rem;
+    color: var(--color-primario);
+    margin-bottom: 0.5rem;
 }
 
 .slide-content p {
-    font-size: 1.1rem;
-    color: #e2e8f0;
-    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    color: var(--color-texto-suave);
+    margin-bottom: 0.4rem;
 }
 
-.btn-carrusel {
-    display: inline-block;
+/* BOTÓN DORADO REUTILIZABLE */
+.btn-reservar {
     background-color: var(--color-acento);
     color: #ffffff;
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
+    border: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 6px;
     font-weight: 600;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 0.8rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.carousel-container:hover .btn-carrusel {
+.btn-reservar:hover {
     background-color: var(--color-acento-hover);
+    transform: translateY(-1px);
 }
 
 /* ==========================================
@@ -180,7 +171,7 @@ footer p {
 
 
 /* ==========================================
-   SECCIÓN DE EVENTOS Y GRID (2 EN 2)
+   SECCIÓN DE EVENTOS
    ========================================== */
 .section-header {
     text-align: center;
@@ -211,7 +202,7 @@ footer p {
 }
 
 /* ==========================================
-   TARJETA DE EVENTO CON IMAGEN (1/3 PROPORCIÓN)
+   TARJETA DE EVENTO CON IMAGEN
    ========================================== */
 .card-evento {
     background-color: var(--color-tarjeta);
@@ -288,7 +279,7 @@ footer p {
 }
 
 /* ==========================================
-   BOTÓN RESERVAR (COLOR DORADO INSTITUCIONAL)
+   BOTÓN RESERVAR
    ========================================== */
 .btn-reservar {
     background-color: var(--color-acento); /* Color dorado/miel definido en :root */
@@ -307,7 +298,7 @@ footer p {
 }
 
 /* ==========================================
-   VENTANA MODAL (FORMULARIO EMERGENTE)
+   VENTANA MODAL 
    ========================================== */
 .modal {
     display: none; 
@@ -398,7 +389,7 @@ footer p {
 
 
 /* ==========================================
-   PANEL ADMINISTRADOR: SIMETRÍA Y 7 EVENTOS
+   PANEL ADMINISTRADOR
    ========================================== */
 
 /* Alineación en cuadrícula */
@@ -498,4 +489,127 @@ footer p {
 
 .btn-eliminar:hover {
     background-color: #c53030;
+}
+
+
+
+/* =========================================
+   SECCIÓN DE ASISTENTES
+   ========================================== */
+
+/* Grid estricto de 2 columnas */
+.eventos-grid-dos-columnas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .eventos-grid-dos-columnas {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Modal de Asistentes */
+.modal-asistentes-ancho {
+    max-width: 800px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-titulo-evento {
+    color: var(--color-primario, #1a365d);
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.resumen-evento-info {
+    margin-bottom: 1rem;
+    color: var(--color-texto, #2d3748);
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+/* Tabla de Asistentes */
+.tabla-asistentes-container {
+    overflow-y: auto;
+    flex-grow: 1;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.5rem;
+    background-color: var(--color-tarjeta, #ffffff);
+}
+
+.tabla-asistentes {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.tabla-asistentes thead tr {
+    background-color: var(--color-fondo, #f7fafc);
+    border-bottom: 2px solid #e2e8f0;
+    color: var(--color-texto, #2d3748);
+}
+
+.tabla-asistentes th {
+    padding: 0.75rem 0.6rem;
+    font-weight: 600;
+}
+
+.tabla-asistentes td {
+    padding: 0.65rem 0.6rem;
+    border-bottom: 1px solid #edf2f7;
+    color: var(--color-texto, #2d3748);
+}
+
+.tabla-asistentes tbody tr:hover {
+    background-color: rgba(43, 108, 176, 0.04);
+}
+
+.texto-centro {
+    text-align: center;
+}
+
+.modal-footer-acciones {
+    margin-top: 1rem;
+    text-align: right;
+}
+
+/* Respaldos de color directo en botones por si falla o no carga el JS */
+.btn-cerrar-modal {
+    background-color: var(--color-texto-suave, #718096);
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-cerrar-modal:hover {
+    background-color: #4a5568;
+}
+
+/* Estilo fallback para botones generados dentro de las tarjetas */
+.btn-ver-asistentes {
+    background-color: var(--color-primario, #1a365d);
+    color: #ffffff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-ver-asistentes:hover {
+    background-color: #2b6cb0;
 }

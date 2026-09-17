@@ -1,3 +1,5 @@
+// js/eventos.js
+
 // Datos iniciales de prueba si LocalStorage está vacío
 const eventosIniciales = [
     {
@@ -27,12 +29,20 @@ function obtenerEventos() {
         localStorage.setItem('eventos', JSON.stringify(eventosIniciales));
         return eventosIniciales;
     }
-    return JSON.parse(almacenados);
+    try {
+        const parsed = JSON.parse(almacenados);
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : eventosIniciales;
+    } catch (e) {
+        console.error("Error al parsear eventos desde localStorage:", e);
+        return eventosIniciales;
+    }
 }
 
-// Mostrar tarjetas en el grid con la nueva estructura de imagen (1/3)
+// Mostrar tarjetas en el grid con la estructura de imagen y datos
 function renderizarEventos() {
     const grid = document.getElementById('eventosGrid');
+    if (!grid) return;
+
     const eventos = obtenerEventos();
 
     if (eventos.length === 0) {
@@ -42,41 +52,52 @@ function renderizarEventos() {
 
     const imagenPorDefecto = 'img/logo.jpg';
 
-    grid.innerHTML = eventos.map(evento => `
-        <div class="card-evento" onclick="abrirModal(${evento.id})">
-            <!-- Título arriba sin alteraciones -->
-            <h3>${evento.titulo}</h3>
+    grid.innerHTML = eventos.map(evento => {
+        const estaAgotado = (evento.aforo ?? 0) <= 0;
 
-            <!-- Contenedor central: Imagen (1/3) + Info (2/3) -->
-            <div class="card-body">
-                <div class="card-img-container">
-                    <img src="${evento.imagen && evento.imagen.trim() !== '' ? evento.imagen : imagenPorDefecto}" alt="${evento.titulo}">
+        return `
+            <div class="card-evento" onclick="abrirModal('${evento.id}')">
+                <!-- Título del evento -->
+                <h3>${evento.titulo || 'Sin título'}</h3>
+
+                <!-- Contenedor central: Imagen + Info -->
+                <div class="card-body">
+                    <div class="card-img-container">
+                        <img src="${evento.imagen && evento.imagen.trim() !== '' ? evento.imagen : imagenPorDefecto}" alt="${evento.titulo}">
+                    </div>
+                    <div class="card-info">
+                        <p><span>Fecha:</span> ${evento.fecha || 'Por confirmar'}</p>
+                        <p><span>Hora:</span> ${evento.hora || 'Por confirmar'}</p>
+                        <p><span>Lugar:</span> ${evento.lugar || 'Instalaciones'}</p>
+                        <p><span>Cupos:</span> <strong style="color: ${estaAgotado ? '#e53e3e' : '#2b6cb0'};">${evento.aforo ?? 0}</strong></p>
+                    </div>
                 </div>
-                <div class="card-info">
-                    <p><span>Fecha:</span> ${evento.fecha}</p>
-                    <p><span>Hora:</span> ${evento.hora}</p>
-                    <p><span>Lugar:</span> ${evento.lugar}</p>
-                    <p><span>Cupos:</span> ${evento.aforo}</p>
+
+                <!-- Botón de reserva -->
+                <div class="card-footer">
+                    <button class="btn-reservar" ${estaAgotado ? 'disabled style="background:#cbd5e0; cursor:not-allowed;"' : ''}>
+                        ${estaAgotado ? 'Agotado' : 'Reservar Ticket'}
+                    </button>
                 </div>
             </div>
-
-            <!-- Botón de reserva inferior intacto -->
-            <div class="card-footer">
-                <button class="btn-reservar">Reservar</button>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // Abrir Modal de reserva
 function abrirModal(id) {
     const eventos = obtenerEventos();
-    const evento = eventos.find(e => e.id === id);
+    // Comparación flexible (String/Number) para compatibilidad con IDs numéricos o string
+    const evento = eventos.find(e => String(e.id) === String(id));
 
     if (evento && evento.aforo > 0) {
-        document.getElementById('eventoId').value = evento.id;
-        document.getElementById('modalTituloEvento').innerText = `Reservar para: ${evento.titulo}`;
-        document.getElementById('modalReserva').style.display = 'flex';
+        const inputId = document.getElementById('eventoId');
+        const modalTitulo = document.getElementById('modalTituloEvento');
+        const modalReserva = document.getElementById('modalReserva');
+
+        if (inputId) inputId.value = evento.id;
+        if (modalTitulo) modalTitulo.innerText = `Reservar para: ${evento.titulo}`;
+        if (modalReserva) modalReserva.style.display = 'flex';
     } else {
         alert('Lo sentimos, este evento ya no tiene cupos disponibles.');
     }
@@ -84,45 +105,70 @@ function abrirModal(id) {
 
 // Cerrar Modal
 function cerrarModal() {
-    document.getElementById('modalReserva').style.display = 'none';
-    document.getElementById('formReserva').reset();
+    const modalReserva = document.getElementById('modalReserva');
+    const formReserva = document.getElementById('formReserva');
+
+    if (modalReserva) modalReserva.style.display = 'none';
+    if (formReserva) formReserva.reset();
 }
 
-// Procesar el formulario de reserva
-document.getElementById('formReserva').addEventListener('submit', function (e) {
-    e.preventDefault();
+// Procesar el formulario de reserva y registrar en localStorage para asistentes.html
+document.addEventListener('DOMContentLoaded', () => {
+    renderizarEventos();
 
-    const id = parseInt(document.getElementById('eventoId').value);
-    const cantidad = parseInt(document.getElementById('cantidadTickets').value);
-    const nombre = document.getElementById('nombreReserva').value;
+    const formReserva = document.getElementById('formReserva');
+    if (!formReserva) return;
 
-    let eventos = obtenerEventos();
-    let eventoIndex = eventos.findIndex(e => e.id === id);
+    formReserva.addEventListener('submit', function (e) {
+        e.preventDefault();
 
-    if (eventoIndex !== -1) {
-        if (eventos[eventoIndex].aforo >= cantidad) {
-            // Descontar aforo
-            eventos[eventoIndex].aforo -= cantidad;
-            localStorage.setItem('eventos', JSON.stringify(eventos));
+        const id = document.getElementById('eventoId').value;
+        const cantidadInput = document.getElementById('cantidadTickets') || document.getElementById('cantidadReserva');
+        const nombreInput = document.getElementById('nombreReserva') || document.getElementById('nombreCompleto');
+        const cedulaInput = document.getElementById('identificacionReserva') || document.getElementById('cedulaReserva');
+        const correoInput = document.getElementById('correoReserva');
 
-            // Guardar registro de la reserva
-            const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
-            reservas.push({
-                evento: eventos[eventoIndex].titulo,
-                nombre: nombre,
-                tickets: cantidad,
-                fechaReserva: new Date().toLocaleDateString()
-            });
-            localStorage.setItem('reservas', JSON.stringify(reservas));
+        const cantidad = parseInt(cantidadInput ? cantidadInput.value : 1, 10);
+        const nombre = nombreInput ? nombreInput.value.trim() : 'Sin nombre';
+        const identificacion = cedulaInput ? cedulaInput.value.trim() : 'S/I';
+        const correo = correoInput ? correoInput.value.trim() : 'S/N';
 
-            alert(`¡Reserva exitosa, ${nombre}! Haz reservado ${cantidad} ticket(s).`);
-            cerrarModal();
-            renderizarEventos();
+        let eventos = obtenerEventos();
+        let eventoIndex = eventos.findIndex(e => String(e.id) === String(id));
+
+        if (eventoIndex !== -1) {
+            const eventoSeleccionado = eventos[eventoIndex];
+
+            if (eventoSeleccionado.aforo >= cantidad) {
+                // 1. Descontar aforo
+                eventos[eventoIndex].aforo -= cantidad;
+                localStorage.setItem('eventos', JSON.stringify(eventos));
+
+                // 2. Guardar registro estructurado para la tabla de asistentes.html
+                const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
+                const nuevaReserva = {
+                    id: "res_" + Date.now(),
+                    eventoId: eventoSeleccionado.id,
+                    eventoTitulo: eventoSeleccionado.titulo,
+                    nombreCompleto: nombre,
+                    identificacion: identificacion,
+                    correo: correo,
+                    cantidad: cantidad,
+                    fechaReserva: new Date().toLocaleDateString('es-EC', { year: 'numeric', month: '2-digit', day: '2-digit' })
+                };
+
+                reservas.push(nuevaReserva);
+                localStorage.setItem('reservas', JSON.stringify(reservas));
+
+                // 3. Confirmación y limpieza
+                alert(`¡Reserva exitosa, ${nombre}!\nHas reservado ${cantidad} ticket(s) para "${eventoSeleccionado.titulo}".`);
+                cerrarModal();
+                renderizarEventos();
+            } else {
+                alert('No hay suficientes cupos disponibles para completar la solicitud.');
+            }
         } else {
-            alert('No hay suficientes cupos disponibles para completar la solicitud.');
+            alert('El evento seleccionado no existe.');
         }
-    }
+    });
 });
-
-// Inicializar la vista
-document.addEventListener('DOMContentLoaded', renderizarEventos);

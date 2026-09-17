@@ -1,72 +1,115 @@
+// js/admin.js
+
 const CODIGO_CORRECTO = "1234";
 
-// Variables para controlar qué acción se está autorizando ('agregar' o 'eliminar')
+// Variables para controlar la acción que se autoriza ('agregar' o 'eliminar')
 let accionPendiente = null; 
 let eventoTemporal = null;
 let idEliminarTemporal = null;
 
-// Cargar la lista de eventos guardados
+// Eventos de prueba iniciales por si LocalStorage está vacío
+const eventosInicialesAdmin = [
+    {
+        id: 1,
+        titulo: "Ceremonia de Juramento a la Bandera",
+        fecha: "2026-09-26",
+        hora: "08:30 AM",
+        lugar: "Patio Principal de la Institución",
+        aforo: 150,
+        imagen: "img/logo.jpg"
+    },
+    {
+        id: 2,
+        titulo: "Feria de Ciencias y Tecnología",
+        fecha: "2026-10-15",
+        hora: "10:00 AM",
+        lugar: "Auditorio Institucional",
+        aforo: 80,
+        imagen: "img/logo.jpg"
+    }
+];
+
+// Cargar la lista de eventos guardados o cargar los por defecto
 function obtenerEventos() {
     const almacenados = localStorage.getItem('eventos');
-    return almacenados ? JSON.parse(almacenados) : [];
+    if (!almacenados) {
+        localStorage.setItem('eventos', JSON.stringify(eventosInicialesAdmin));
+        return eventosInicialesAdmin;
+    }
+    try {
+        const parsed = JSON.parse(almacenados);
+        return Array.isArray(parsed) ? parsed : eventosInicialesAdmin;
+    } catch (e) {
+        console.error("Error al obtener eventos de localStorage:", e);
+        return eventosInicialesAdmin;
+    }
 }
 
 // Mostrar los eventos aperturados en el panel
 function renderizarListaAdmin() {
     const contenedor = document.getElementById('listaEventosAdmin');
+    if (!contenedor) return;
+
     const eventos = obtenerEventos();
 
     if (eventos.length === 0) {
-        contenedor.innerHTML = '<p style="text-align: center; color: var(--color-texto-suave);">No hay eventos creados actualmente.</p>';
+        contenedor.innerHTML = '<p style="text-align: center; color: var(--color-texto-suave, #718096); padding: 1rem;">No hay eventos creados actualmente.</p>';
         return;
     }
 
     contenedor.innerHTML = eventos.map(evento => `
-        <div class="admin-event-item">
+        <div class="admin-event-item" style="border: 1px solid #e2e8f0; padding: 0.8rem 1rem; border-radius: 6px; margin-bottom: 0.8rem; background: #f7fafc; display: flex; justify-content: space-between; align-items: center;">
             <div class="admin-event-item-info">
-                <strong>${evento.titulo}</strong>
-                <span>Fecha: ${evento.fecha} | Hora: ${evento.hora} | Cupos: ${evento.aforo}</span>
+                <strong style="display: block; color: #1a365d; margin-bottom: 0.2rem;">${evento.titulo || 'Sin título'}</strong>
+                <span style="font-size: 0.85rem; color: #4a5568;">
+                    📅 ${evento.fecha || 'Sin fecha'} | ⏰ ${evento.hora || 'Sin hora'} | 🎟️ Cupos: <strong>${evento.aforo ?? 0}</strong>
+                </span>
             </div>
-            <button class="btn-eliminar" onclick="solicitarEliminacion(${evento.id})">Eliminar</button>
+            <button class="btn-eliminar" onclick="solicitarEliminacion('${evento.id}')" style="background: #e53e3e; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">
+                Eliminar
+            </button>
         </div>
     `).join('');
 }
 
 // --- ACCIÓN: AGREGAR EVENTO ---
-document.getElementById('formAgregarEvento').addEventListener('submit', function (e) {
-    e.preventDefault();
+const formAgregar = document.getElementById('formAgregarEvento');
+if (formAgregar) {
+    formAgregar.addEventListener('submit', function (e) {
+        e.preventDefault();
 
-    const fileInput = document.getElementById('imagenEvento');
-    const file = fileInput.files[0];
+        const fileInput = document.getElementById('imagenEvento');
+        const file = fileInput && fileInput.files ? fileInput.files[0] : null;
 
-    // Datos base del evento
-    const datosEvento = {
-        id: Date.now(),
-        titulo: document.getElementById('tituloEvento').value.trim(),
-        fecha: document.getElementById('fechaEvento').value,
-        hora: document.getElementById('horaEvento').value.trim(),
-        lugar: document.getElementById('lugarEvento').value.trim(),
-        aforo: parseInt(document.getElementById('aforoEvento').value),
-        imagen: ''
-    };
+        // Datos base del evento
+        const datosEvento = {
+            id: Date.now(), // Genera un ID único basado en timestamp
+            titulo: document.getElementById('tituloEvento').value.trim(),
+            fecha: document.getElementById('fechaEvento').value,
+            hora: document.getElementById('horaEvento').value.trim(),
+            lugar: document.getElementById('lugarEvento').value.trim(),
+            aforo: parseInt(document.getElementById('aforoEvento').value, 10),
+            imagen: 'img/logo.jpg' // Imagen por defecto
+        };
 
-    // Si seleccionó un archivo local, lo convertimos a Base64
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            datosEvento.imagen = e.target.result; // Imagen convertida a texto Base64
+        // Si seleccionó un archivo local, lo convertimos a Base64
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                datosEvento.imagen = e.target.result; // Imagen convertida
+                eventoTemporal = datosEvento;
+                accionPendiente = 'agregar';
+                abrirModalAuth("Ingresa el código PIN para agregar el evento.");
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Si no subió imagen, se procede directamente
             eventoTemporal = datosEvento;
             accionPendiente = 'agregar';
             abrirModalAuth("Ingresa el código PIN para agregar el evento.");
-        };
-        reader.readAsDataURL(file);
-    } else {
-        // Si no subió ninguna imagen, se procede directamente (usará la imagen por defecto)
-        eventoTemporal = datosEvento;
-        accionPendiente = 'agregar';
-        abrirModalAuth("Ingresa el código PIN para agregar el evento.");
-    }
-});
+        }
+    });
+}
 
 // --- ACCIÓN: ELIMINAR EVENTO ---
 function solicitarEliminacion(id) {
@@ -77,48 +120,62 @@ function solicitarEliminacion(id) {
 
 // Abrir modal de autenticación
 function abrirModalAuth(mensaje) {
-    document.getElementById('modalMensajeAccion').innerText = mensaje;
-    document.getElementById('modalAuth').style.display = 'flex';
-    document.getElementById('codigoAdmin').value = '';
-    document.getElementById('codigoAdmin').focus();
+    const modalMensaje = document.getElementById('modalMensajeAccion');
+    const modalAuth = document.getElementById('modalAuth');
+    const inputCodigo = document.getElementById('codigoAdmin');
+
+    if (modalMensaje) modalMensaje.innerText = mensaje;
+    if (modalAuth) modalAuth.style.display = 'flex';
+    if (inputCodigo) {
+        inputCodigo.value = '';
+        inputCodigo.focus();
+    }
 }
 
 // Cerrar modal
 function cerrarModalAuth() {
-    document.getElementById('modalAuth').style.display = 'none';
+    const modalAuth = document.getElementById('modalAuth');
+    if (modalAuth) modalAuth.style.display = 'none';
     accionPendiente = null;
     eventoTemporal = null;
     idEliminarTemporal = null;
 }
 
 // VALIDAR CÓDIGO PIN
-document.getElementById('formAuth').addEventListener('submit', function (e) {
-    e.preventDefault();
+const formAuth = document.getElementById('formAuth');
+if (formAuth) {
+    formAuth.addEventListener('submit', function (e) {
+        e.preventDefault();
 
-    const codigoIngresado = document.getElementById('codigoAdmin').value.trim();
+        const codigoIngresado = document.getElementById('codigoAdmin').value.trim();
 
-    if (codigoIngresado === CODIGO_CORRECTO) {
-        let eventos = obtenerEventos();
+        if (codigoIngresado === CODIGO_CORRECTO) {
+            let eventos = obtenerEventos();
 
-        if (accionPendiente === 'agregar') {
-            eventos.push(eventoTemporal);
-            localStorage.setItem('eventos', JSON.stringify(eventos));
-            alert('¡Evento publicado exitosamente!');
-            document.getElementById('formAgregarEvento').reset();
-        } else if (accionPendiente === 'eliminar') {
-            eventos = eventos.filter(e => e.id !== idEliminarTemporal);
-            localStorage.setItem('eventos', JSON.stringify(eventos));
-            alert('¡Evento eliminado correctamente!');
+            if (accionPendiente === 'agregar') {
+                eventos.unshift(eventoTemporal); // Agregar al inicio de la lista
+                localStorage.setItem('eventos', JSON.stringify(eventos));
+                alert('¡Evento publicado exitosamente!');
+                if (formAgregar) formAgregar.reset();
+            } else if (accionPendiente === 'eliminar') {
+                // Comparación flexible (String) para soportar IDs tanto numéricos como string
+                eventos = eventos.filter(e => String(e.id) !== String(idEliminarTemporal));
+                localStorage.setItem('eventos', JSON.stringify(eventos));
+                alert('¡Evento eliminado correctamente!');
+            }
+
+            cerrarModalAuth();
+            renderizarListaAdmin(); // Actualiza la lista en tiempo real
+        } else {
+            alert('Código Inválido');
+            const inputCodigo = document.getElementById('codigoAdmin');
+            if (inputCodigo) {
+                inputCodigo.value = '';
+                inputCodigo.focus();
+            }
         }
-
-        cerrarModalAuth();
-        renderizarListaAdmin(); // Actualiza la lista en admin.html inmediatamente
-    } else {
-        alert('Código Inválido');
-        document.getElementById('codigoAdmin').value = '';
-        document.getElementById('codigoAdmin').focus();
-    }
-});
+    });
+}
 
 // Inicializar la vista al cargar la página
 document.addEventListener('DOMContentLoaded', renderizarListaAdmin);
