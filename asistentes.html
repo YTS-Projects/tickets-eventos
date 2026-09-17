@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consulta de asistentes registrados por evento en la U.E.F. Pablo Hannibal Vela Egüéz.">
     <title>Asistentes Registrados - U.E.F. Pablo Hannibal Vela Egüéz</title>
+    <!-- Hoja de estilos principal -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-    <!-- BARRA DE NAVEGACIÓN -->
+    <!-- BARRA DE NAVEGACIÓN PRINCIPAL -->
     <header>
         <nav class="navbar" aria-label="Navegación principal">
             <div class="nav-brand">
@@ -23,26 +25,32 @@
         </nav>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- CONTENEDOR PRINCIPAL DE CONTENIDO -->
     <main class="main-container">
         
+        <!-- LOGO INSTITUCIONAL -->
+        <section class="logo-section">
+            <img src="img/logo.jpg" alt="Logo U.E.F. Pablo Hannibal Vela Egüéz" class="logo-img">
+        </section>
+
+        <!-- ENCABEZADO DE SECCIÓN -->
         <header class="section-header text-center">
             <h2>Control de Asistentes por Evento</h2>
             <p>Selecciona un evento para consultar el listado detallado de personas reservadas.</p>
         </header>
 
-        <!-- TARJETAS DE EVENTOS -->
-        <div id="eventosAsistentesGrid" class="eventos-grid-dos-columnas">
-            <!-- Se cargan dinámicamente desde JS -->
-        </div>
+        <!-- TARJETAS DE EVENTOS (Renderizado dinámico mediante JS) -->
+        <section id="eventosAsistentesGrid" class="eventos-grid-dos-columnas" aria-live="polite">
+            <div class="cargando-texto">Cargando eventos...</div>
+        </section>
 
     </main>
 
     <!-- MODAL PARA VER LISTA DE REGISTRADOS -->
-    <div id="modalAsistentes" class="modal">
+    <div id="modalAsistentes" class="modal" role="dialog" aria-labelledby="modalTituloEvento" aria-hidden="true">
         <div class="modal-content modal-asistentes-ancho">
             
-            <span class="close-modal" onclick="cerrarModalAsistentes()">&times;</span>
+            <button type="button" class="close-modal" onclick="cerrarModalAsistentes()" aria-label="Cerrar modal">&times;</button>
 
             <h3 id="modalTituloEvento" class="modal-titulo-evento">
                 Asistentes Registrados
@@ -50,7 +58,7 @@
 
             <!-- RESUMEN RÁPIDO DE RESERVAS -->
             <div id="resumenEvento" class="resumen-evento-info">
-                <!-- Se llena con JS -->
+                <!-- Se llena dinámicamente con JS -->
             </div>
 
             <!-- CONTENEDOR CON SCROLL PARA LA TABLA -->
@@ -58,12 +66,12 @@
                 <table class="tabla-asistentes">
                     <thead>
                         <tr>
-                            <th>N°</th>
-                            <th>Nombre Completo</th>
-                            <th>Identificación</th>
-                            <th>Correo</th>
-                            <th class="texto-centro">Tickets</th>
-                            <th>Fecha Reserva</th>
+                            <th scope="col">N°</th>
+                            <th scope="col">Nombre Completo</th>
+                            <th scope="col">Identificación</th>
+                            <th scope="col">Correo</th>
+                            <th scope="col" class="texto-centro">Tickets</th>
+                            <th scope="col">Fecha Reserva</th>
                         </tr>
                     </thead>
                     <tbody id="tablaAsistentesBody">

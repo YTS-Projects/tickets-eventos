@@ -137,28 +137,87 @@ body {
 }
 
 /* ==========================================
-   3. CARRUSEL DE EVENTOS Y BOTÓN UNIFICADO
+   3. CARRUSEL DE EVENTOS Y BOTÓN UNIFICADO (TEXTO SOLO)
    ========================================== */
 .carousel-section {
     width: 100%;
     text-align: center;
+    padding: 1rem 0;
+}
+
+.carousel-wrapper {
+    position: relative;
+    max-width: 650px;
+    margin: 0 auto;
+    overflow: hidden;
 }
 
 .carousel-slides-container {
-    padding: 1.5rem;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 280px;
+    padding: 1rem;
 }
 
-.slide-content h3 {
+/* Transición suave para cambiar entre tarjetas */
+.slide-texto {
+    display: none;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.slide-texto.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Tarjeta contenedora de datos textuales del evento */
+.slide-info-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.75rem 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    margin: 0 auto;
+}
+
+.badge-destacado {
+    display: inline-block;
+    background-color: var(--color-primario);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.slide-titulo {
     font-size: 1.4rem;
     color: var(--color-primario);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
+    line-height: 1.3;
 }
 
-.slide-content p {
+.slide-detalles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-align: center;
+    max-width: 480px;
+    margin: 0 auto 1rem auto;
     font-size: 0.95rem;
     color: var(--color-texto-suave);
-    margin-bottom: 0.4rem;
+}
+
+.slide-detalles span {
+    font-weight: 600;
+    color: #333333;
 }
 
 /* BOTÓN DORADO REUTILIZABLE */
@@ -173,12 +232,37 @@ body {
     text-decoration: none;
     display: inline-block;
     margin-top: 0.8rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-reservar:hover {
     background-color: var(--color-acento-hover);
     transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* PUNTOS INDICADORES DEL CARRUSEL */
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.8rem;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background-color: #cbd5e1;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background-color: var(--color-primario);
+    width: 22px;
+    border-radius: 6px;
 }
 
 /* ==========================================

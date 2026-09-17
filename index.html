@@ -25,31 +25,31 @@
         </nav>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL CON ESPACIADO VERTICAL OPTIMIZADO -->
-    <main class="main-container" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">
+    <!-- CONTENEDOR PRINCIPAL CON ESPACIADO OPTIMIZADO -->
+    <main class="main-container">
 
         <!-- 2. LOGO INSTITUCIONAL -->
-        <section class="logo-section" style="margin-bottom: 0; text-align: center;">
+        <section class="logo-section">
             <img src="img/logo.jpg" alt="Logo U.E.F. Pablo Hannibal Vela Egüéz" class="logo-img">
         </section>
 
         <!-- 3. CARRUSEL COMPACTO DE EVENTOS -->
-        <section class="carousel-section" style="max-width: 650px; margin: 0 auto;">
-            <h2 style="text-align: center; color: var(--color-primario, #1a365d); margin-top: 0.2rem; margin-bottom: 0.5rem; font-size: 1.3rem;">Eventos Destacados</h2>
+        <section class="carousel-section">
+            <h2 class="titulo-seccion-centro">Eventos Destacados</h2>
             
-            <div class="carousel-wrapper" style="position: relative; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden;">
+            <div class="carousel-wrapper">
                 
-                <!-- Contenedor dinámico de las tarjetas de texto (Utiliza .btn-reservar mediante js/index.js) -->
+                <!-- Contenedor dinámico de las tarjetas de texto/imagen (Cargado mediante js/index.js) -->
                 <div id="carouselSlides" class="carousel-slides-container">
-                    <div style="padding: 1.5rem; text-align: center; color: #718096;">Cargando información de eventos...</div>
+                    <div class="cargando-texto">Cargando información de eventos...</div>
                 </div>
 
                 <!-- Botones de navegación laterales -->
-                <button type="button" id="btnPrev" class="carousel-control prev" aria-label="Evento anterior" style="position: absolute; top: 50%; left: 8px; transform: translateY(-50%); background: #edf2f7; color: #2d3748; border: 1px solid #cbd5e0; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1rem; display: flex; align-items: center; justify-content: center; z-index: 10;">&#10094;</button>
-                <button type="button" id="btnNext" class="carousel-control next" aria-label="Siguiente evento" style="position: absolute; top: 50%; right: 8px; transform: translateY(-50%); background: #edf2f7; color: #2d3748; border: 1px solid #cbd5e0; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1rem; display: flex; align-items: center; justify-content: center; z-index: 10;">&#10095;</button>
+                <button type="button" id="btnPrev" class="carousel-control prev" aria-label="Evento anterior">&#10094;</button>
+                <button type="button" id="btnNext" class="carousel-control next" aria-label="Siguiente evento">&#10095;</button>
 
                 <!-- Puntos indicadores inferiores -->
-                <div id="carouselDots" class="carousel-dots" style="position: absolute; bottom: 6px; width: 100%; display: flex; justify-content: center; gap: 6px; z-index: 10;"></div>
+                <div id="carouselDots" class="carousel-dots"></div>
             </div>
         </section>
 

@@ -1,18 +1,38 @@
 // js/asistentes.js
 
-// Obtener la lista de eventos
+/**
+ * Obtiene la lista de eventos desde localStorage.
+ */
 function obtenerEventos() {
     const almacenados = localStorage.getItem('eventos');
-    return almacenados ? JSON.parse(almacenados) : [];
+    if (!almacenados) return [];
+    try {
+        const parsed = JSON.parse(almacenados);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        console.error("Error al parsear eventos desde localStorage:", e);
+        return [];
+    }
 }
 
-// Obtener todas las reservas registradas
+/**
+ * Obtiene todas las reservas registradas desde localStorage.
+ */
 function obtenerReservas() {
     const almacenadas = localStorage.getItem('reservas');
-    return almacenadas ? JSON.parse(almacenadas) : [];
+    if (!almacenadas) return [];
+    try {
+        const parsed = JSON.parse(almacenadas);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        console.error("Error al parsear reservas desde localStorage:", e);
+        return [];
+    }
 }
 
-// Renderizar tarjetas de eventos en la pantalla principal de asistentes
+/**
+ * Renderiza las tarjetas de eventos en la pantalla principal de asistentes.
+ */
 function renderizarTarjetasAsistentes() {
     const grid = document.getElementById('eventosAsistentesGrid');
     if (!grid) return;
@@ -28,12 +48,18 @@ function renderizarTarjetasAsistentes() {
     const imagenPorDefecto = 'img/logo.jpg';
 
     grid.innerHTML = eventos.map(evento => {
-        // Calcular número de personas/tickets reservados para este evento
+        // Filtrar las reservas vinculadas a este evento
         const reservasDelEvento = reservas.filter(r => 
             String(r.eventoId) === String(evento.id) || r.eventoTitulo === evento.titulo
         );
 
-        const totalTicketsReservados = reservasDelEvento.reduce((sum, r) => sum + (parseInt(r.cantidad, 10) || parseInt(r.tickets, 10) || 1), 0);
+        // Calcular el total de entradas/tickets reservados
+        const totalTicketsReservados = reservasDelEvento.reduce((sum, r) => 
+            sum + (parseInt(r.cantidad, 10) || parseInt(r.tickets, 10) || 1), 0
+        );
+
+        // Escapar comillas simples para evitar errores sintácticos en onclick
+        const tituloEscapado = (evento.titulo || '').replace(/'/g, "\\'");
 
         return `
             <div class="card-evento">
@@ -41,7 +67,7 @@ function renderizarTarjetasAsistentes() {
 
                 <div class="card-body">
                     <div class="card-img-container">
-                        <img src="${evento.imagen && evento.imagen.trim() !== '' ? evento.imagen : imagenPorDefecto}" alt="${evento.titulo}">
+                        <img src="${evento.imagen && evento.imagen.trim() !== '' ? evento.imagen : imagenPorDefecto}" alt="${evento.titulo || 'Evento'}" loading="lazy">
                     </div>
                     <div class="card-info">
                         <p><span>Fecha:</span> ${evento.fecha || 'N/A'}</p>
@@ -52,7 +78,7 @@ function renderizarTarjetasAsistentes() {
                 </div>
 
                 <div class="card-footer">
-                    <button class="btn-reservar" onclick="abrirModalAsistentes('${evento.id}', '${evento.titulo.replace(/'/g, "\\'")}')">
+                    <button class="btn-reservar" onclick="abrirModalAsistentes('${evento.id}', '${tituloEscapado}')">
                         📋 Ver Registrados
                     </button>
                 </div>
@@ -61,7 +87,9 @@ function renderizarTarjetasAsistentes() {
     }).join('');
 }
 
-// Abrir la ventana modal y filtrar la lista de personas para ese evento
+/**
+ * Abre la ventana modal y carga la lista de registrados para el evento seleccionado.
+ */
 function abrirModalAsistentes(eventoId, eventoTitulo) {
     const modal = document.getElementById('modalAsistentes');
     const modalTitulo = document.getElementById('modalTituloEvento');
@@ -72,21 +100,24 @@ function abrirModalAsistentes(eventoId, eventoTitulo) {
 
     const reservas = obtenerReservas();
 
-    // Filtrar reservas que pertenezcan a este evento
+    // Filtrar asistentes asignados a este evento
     const asistentesFiltrados = reservas.filter(r => 
         String(r.eventoId) === String(eventoId) || r.eventoTitulo === eventoTitulo
     );
 
-    // Actualizar título y resumen
-    if (modalTitulo) modalTitulo.innerText = `Asistentes: ${eventoTitulo}`;
-    
-    const totalTickets = asistentesFiltrados.reduce((sum, r) => sum + (parseInt(r.cantidad, 10) || parseInt(r.tickets, 10) || 1), 0);
-    
+    if (modalTitulo) {
+        modalTitulo.innerText = `Asistentes: ${eventoTitulo}`;
+    }
+
+    const totalTickets = asistentesFiltrados.reduce((sum, r) => 
+        sum + (parseInt(r.cantidad, 10) || parseInt(r.tickets, 10) || 1), 0
+    );
+
     if (resumen) {
         resumen.innerHTML = `Total de registros: <span class="texto-destacado">${asistentesFiltrados.length}</span> | Total Entradas / Tickets: <span class="texto-destacado">${totalTickets}</span>`;
     }
 
-    // Dibujar la tabla
+    // Generar las filas de la tabla
     if (asistentesFiltrados.length === 0) {
         tablaBody.innerHTML = `
             <tr>
@@ -108,14 +139,41 @@ function abrirModalAsistentes(eventoId, eventoTitulo) {
         `).join('');
     }
 
+    // Mostrar modal actualizando atributos de accesibilidad
     modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
 }
 
-// Cerrar la ventana modal
+/**
+ * Cierra la ventana modal y restablece sus atributos de accesibilidad.
+ */
 function cerrarModalAsistentes() {
     const modal = document.getElementById('modalAsistentes');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+    }
 }
 
-// Inicializar la vista al cargar el documento
-document.addEventListener('DOMContentLoaded', renderizarTarjetasAsistentes);
+// Escuchadores de eventos para la inicialización y el control del modal
+document.addEventListener('DOMContentLoaded', () => {
+    renderizarTarjetasAsistentes();
+
+    const modalAsistentes = document.getElementById('modalAsistentes');
+
+    // Cerrar modal al hacer clic en el fondo oscuro exterior
+    if (modalAsistentes) {
+        window.addEventListener('click', (e) => {
+            if (e.target === modalAsistentes) {
+                cerrarModalAsistentes();
+            }
+        });
+    }
+
+    // Cerrar modal al presionar la tecla Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalAsistentes && modalAsistentes.style.display === 'flex') {
+            cerrarModalAsistentes();
+        }
+    });
+});

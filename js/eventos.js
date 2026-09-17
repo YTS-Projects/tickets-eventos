@@ -3,7 +3,7 @@
 // Datos iniciales de prueba si LocalStorage está vacío
 const eventosIniciales = [
     {
-        id: 1,
+        id: "ev_inicial_1",
         titulo: "Ceremonia de Juramento a la Bandera",
         fecha: "2026-09-26",
         hora: "08:30 AM",
@@ -12,7 +12,7 @@ const eventosIniciales = [
         imagen: "img/bandera.jpg"
     },
     {
-        id: 2,
+        id: "ev_inicial_2",
         titulo: "Feria de Ciencias y Tecnología",
         fecha: "2026-10-15",
         hora: "10:00 AM",
@@ -22,7 +22,9 @@ const eventosIniciales = [
     }
 ];
 
-// Cargar eventos guardados o usar los por defecto
+/**
+ * Carga eventos guardados desde LocalStorage o inicializa los valores por defecto.
+ */
 function obtenerEventos() {
     const almacenados = localStorage.getItem('eventos');
     if (!almacenados) {
@@ -38,7 +40,9 @@ function obtenerEventos() {
     }
 }
 
-// Mostrar tarjetas en el grid con la estructura de imagen y datos
+/**
+ * Muestra las tarjetas de eventos en la cuadrícula HTML.
+ */
 function renderizarEventos() {
     const grid = document.getElementById('eventosGrid');
     if (!grid) return;
@@ -46,7 +50,7 @@ function renderizarEventos() {
     const eventos = obtenerEventos();
 
     if (eventos.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No hay eventos disponibles en este momento.</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; font-size: 1.1rem; color: #4a5568;">No hay eventos disponibles en este momento.</p>';
         return;
     }
 
@@ -60,10 +64,10 @@ function renderizarEventos() {
                 <!-- Título del evento -->
                 <h3>${evento.titulo || 'Sin título'}</h3>
 
-                <!-- Contenedor central: Imagen + Info -->
+                <!-- Contenedor central: Imagen e Información -->
                 <div class="card-body">
                     <div class="card-img-container">
-                        <img src="${evento.imagen && evento.imagen.trim() !== '' ? evento.imagen : imagenPorDefecto}" alt="${evento.titulo}" loading="lazy">
+                        <img src="${evento.imagen && evento.imagen.trim() !== '' ? evento.imagen : imagenPorDefecto}" alt="${evento.titulo || 'Evento'}" loading="lazy">
                     </div>
                     <div class="card-info">
                         <p><span>Fecha:</span> ${evento.fecha || 'Por confirmar'}</p>
@@ -84,7 +88,9 @@ function renderizarEventos() {
     }).join('');
 }
 
-// Abrir Modal de reserva
+/**
+ * Abre la ventana modal ajustando dinámicamente el límite máximo de tickets según el aforo disponible.
+ */
 function abrirModal(id) {
     const eventos = obtenerEventos();
     const evento = eventos.find(e => String(e.id) === String(id));
@@ -93,38 +99,76 @@ function abrirModal(id) {
         const inputId = document.getElementById('eventoId');
         const modalTitulo = document.getElementById('modalTituloEvento');
         const modalReserva = document.getElementById('modalReserva');
+        const inputCantidad = document.getElementById('cantidadTickets') || document.getElementById('cantidadReserva');
 
         if (inputId) inputId.value = evento.id;
         if (modalTitulo) modalTitulo.innerText = `Reservar para: ${evento.titulo}`;
-        if (modalReserva) modalReserva.style.display = 'flex';
+        
+        // Ajustar el límite máximo del input numérico según el aforo real restante (máximo 5)
+        if (inputCantidad) {
+            const maxPermitido = Math.min(evento.aforo, 5);
+            inputCantidad.max = maxPermitido;
+            inputCantidad.value = 1;
+        }
+
+        if (modalReserva) {
+            modalReserva.style.display = 'flex';
+            modalReserva.setAttribute('aria-hidden', 'false');
+        }
     } else {
         alert('Lo sentimos, este evento ya no tiene cupos disponibles.');
     }
 }
 
-// Cerrar Modal
+/**
+ * Cierra la ventana modal y limpia el formulario.
+ */
 function cerrarModal() {
     const modalReserva = document.getElementById('modalReserva');
     const formReserva = document.getElementById('formReserva');
 
-    if (modalReserva) modalReserva.style.display = 'none';
-    if (formReserva) formReserva.reset();
+    if (modalReserva) {
+        modalReserva.style.display = 'none';
+        modalReserva.setAttribute('aria-hidden', 'true');
+    }
+    if (formReserva) {
+        formReserva.reset();
+    }
 }
 
-// Procesar el formulario de reserva y registrar en localStorage para asistentes.html
+// Inicialización de eventos del DOM y procesamiento del formulario
 document.addEventListener('DOMContentLoaded', () => {
     renderizarEventos();
 
+    const modalReserva = document.getElementById('modalReserva');
     const formReserva = document.getElementById('formReserva');
+
+    // Cerrar el modal al hacer clic fuera del contenido del formulario
+    if (modalReserva) {
+        window.addEventListener('click', (e) => {
+            if (e.target === modalReserva) {
+                cerrarModal();
+            }
+        });
+    }
+
+    // Cerrar el modal presionado la tecla Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalReserva && modalReserva.style.display === 'flex') {
+            cerrarModal();
+        }
+    });
+
     if (!formReserva) return;
 
+    // Procesar el envío de la reserva
     formReserva.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const id = document.getElementById('eventoId').value;
         const cantidadInput = document.getElementById('cantidadTickets') || document.getElementById('cantidadReserva');
         const nombreInput = document.getElementById('nombreReserva') || document.getElementById('nombreCompleto');
-        const cedulaInput = document.getElementById('identificacionReserva') || document.getElementById('cedulaReserva');
+        const cedulaInput = document.getElementById('cedulaReserva') || document.getElementById('identificacionReserva');
         const correoInput = document.getElementById('correoReserva');
 
         const cantidad = parseInt(cantidadInput ? cantidadInput.value : 1, 10);
@@ -139,12 +183,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const eventoSeleccionado = eventos[eventoIndex];
 
             if (eventoSeleccionado.aforo >= cantidad) {
-                // 1. Descontar aforo
+                // 1. Descontar el aforo
                 eventos[eventoIndex].aforo -= cantidad;
                 localStorage.setItem('eventos', JSON.stringify(eventos));
 
-                // 2. Guardar registro estructurado para la tabla de asistentes.html
-                const reservas = JSON.parse(localStorage.getItem('reservas')) || [];
+                // 2. Crear y almacenar el registro en "reservas"
+                const reservasGuardadas = localStorage.getItem('reservas');
+                let reservas = [];
+                try {
+                    reservas = reservasGuardadas ? JSON.parse(reservasGuardadas) : [];
+                } catch (err) {
+                    reservas = [];
+                }
+
                 const nuevaReserva = {
                     id: "res_" + Date.now(),
                     eventoId: eventoSeleccionado.id,
@@ -159,15 +210,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 reservas.push(nuevaReserva);
                 localStorage.setItem('reservas', JSON.stringify(reservas));
 
-                // 3. Confirmación y limpieza
+                // 3. Confirmación y actualización de interfaz
                 alert(`¡Reserva exitosa, ${nombre}!\nHas reservado ${cantidad} ticket(s) para "${eventoSeleccionado.titulo}".`);
                 cerrarModal();
                 renderizarEventos();
             } else {
-                alert('No hay suficientes cupos disponibles para completar la solicitud.');
+                alert('No hay suficientes cupos disponibles para completar la cantidad solicitada.');
             }
         } else {
-            alert('El evento seleccionado no existe.');
+            alert('El evento seleccionado no existe o fue removido.');
         }
     });
 });

@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Panel de Administración para gestionar eventos e inscripciones de la U.E.F. Pablo Hannibal Vela Egüéz.">
     <title>Panel de Administración - U.E.F. Pablo Hannibal Vela Egüéz</title>
+    <!-- Hoja de estilos principal -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-    <!-- BARRA DE NAVEGACIÓN -->
+    <!-- BARRA DE NAVEGACIÓN PRINCIPAL -->
     <header>
         <nav class="navbar" aria-label="Navegación principal">
             <div class="nav-brand">
@@ -23,13 +25,19 @@
         </nav>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- CONTENEDOR PRINCIPAL DE CONTENIDO -->
     <main class="main-container">
         
+        <!-- LOGO INSTITUCIONAL -->
+        <section class="logo-section">
+            <img src="img/logo.jpg" alt="Logo U.E.F. Pablo Hannibal Vela Egüéz" class="logo-img">
+        </section>
+
+        <!-- ENCABEZADO DE LA SECCIÓN DE ADMINISTRACIÓN -->
         <header class="section-header section-header-admin">
             <div>
                 <h2>Panel de Administración</h2>
-                <p>Gestiona y administra los eventos institucionales.</p>
+                <p>Gestiona, crea y administra los eventos institucionales.</p>
             </div>
             <!-- Acceso directo al listado de asistentes -->
             <a href="asistentes.html" class="btn-reservar">
@@ -37,15 +45,17 @@
             </a>
         </header>
 
-        <!-- CONTENEDOR EN 2 COLUMNAS (MÓVIL EN 1 COLUMNA) -->
+        <!-- CONTENEDOR EN 2 COLUMNAS (ADAPTABLE A MÓVIL) -->
         <div class="admin-grid">
 
-            <!-- COLUMNA IZQUIERDA: FORMULARIO -->
+            <!-- COLUMNA IZQUIERDA: FORMULARIO DE GESTIÓN -->
             <section class="card-admin">
-                <h3>Agregar Nuevo Evento</h3>
+                <h3 id="formAdminTitle">Agregar Nuevo Evento</h3>
                 
                 <form id="formAgregarEvento" class="form-admin">
-                    
+                    <!-- Campo oculto para identificar si se está editando un evento -->
+                    <input type="hidden" id="editEventoId" value="">
+
                     <div class="form-group">
                         <label for="tituloEvento">Título del Evento:</label>
                         <input type="text" id="tituloEvento" placeholder="Ej. Casa Abierta de Ciencias" required>
@@ -78,12 +88,18 @@
                     <div class="form-group">
                         <label for="imagenEvento">Imagen / Afiche (Opcional):</label>
                         <input type="file" id="imagenEvento" accept="image/*">
+                        <small class="texto-suave">Si no seleccionas una imagen, se asignará la imagen por defecto.</small>
                     </div>
 
-                    <!-- Botón submit -->
-                    <button type="submit" class="btn-reservar btn-block">
-                        Agregar Evento
-                    </button>
+                    <!-- Botones de acción del formulario -->
+                    <div class="form-acciones-group">
+                        <button type="submit" id="btnGuardarEvento" class="btn-reservar btn-block">
+                            Agregar Evento
+                        </button>
+                        <button type="button" id="btnCancelarEdicion" class="btn-cerrar-modal btn-block" style="display: none;" onclick="cancelarEdicionEvento()">
+                            Cancelar Edición
+                        </button>
+                    </div>
                 </form>
             </section>
 
@@ -91,9 +107,9 @@
             <section class="card-admin">
                 <h3>Eventos Aperturados</h3>
 
-                <!-- LISTA DE EVENTOS -->
-                <div id="listaEventosAdmin" class="admin-event-list">
-                    <!-- Se cargan dinámicamente con JS -->
+                <!-- LISTA DE EVENTOS RENDERIZADA DINÁMICAMENTE -->
+                <div id="listaEventosAdmin" class="admin-event-list" aria-live="polite">
+                    <div class="cargando-texto">Cargando eventos...</div>
                 </div>
             </section>
 
@@ -101,19 +117,19 @@
 
     </main>
 
-    <!-- VENTANA MODAL / PIN DE CONFIRMACIÓN -->
-    <div id="modalAuth" class="modal">
+    <!-- VENTANA MODAL / CONFIRMACIÓN DE CÓDIGO PIN -->
+    <div id="modalAuth" class="modal" role="dialog" aria-labelledby="modalAuthTitulo" aria-hidden="true">
         <div class="modal-content">
-            <span class="close-modal" onclick="cerrarModalAuth()">&times;</span>
-            <h3>Confirmar Acción</h3>
+            <button type="button" class="close-modal" onclick="cerrarModalAuth()" aria-label="Cerrar ventana">&times;</button>
+            <h3 id="modalAuthTitulo">Confirmar Acción</h3>
             <p id="modalMensajeAccion">
-                Ingresa el código PIN para confirmar la acción.
+                Ingresa el código PIN para confirmar la acción administrativa.
             </p>
             
             <form id="formAuth" class="form-reserva">
                 <div class="form-group">
-                    <label for="codigoAdmin">Código PIN:</label>
-                    <input type="password" id="codigoAdmin" placeholder="Ej. 1234" required class="input-pin">
+                    <label for="codigoAdmin">Código PIN de Administrador:</label>
+                    <input type="password" id="codigoAdmin" placeholder="Ej. 1234" required class="input-pin" autocomplete="current-password">
                 </div>
 
                 <button type="submit" class="btn-reservar btn-block">Validar y Confirmar</button>

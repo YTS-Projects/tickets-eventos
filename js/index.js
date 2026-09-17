@@ -1,12 +1,9 @@
 // js/index.js
 
-let indiceDiapositivaActual = 0;
-let intervaloCarrusel = null;
-
-// Eventos de muestra iniciales por si aún no existen registros en localStorage
-const eventosBaseIniciales = [
+// Eventos predeterminados por si no hay datos en localStorage
+const eventosDefectoIndex = [
     {
-        id: "ev_inicial_1",
+        id: 1,
         titulo: "Ceremonia de Juramento a la Bandera",
         fecha: "2026-09-26",
         hora: "08:30 AM",
@@ -14,7 +11,7 @@ const eventosBaseIniciales = [
         aforo: 150
     },
     {
-        id: "ev_inicial_2",
+        id: 2,
         titulo: "Feria de Ciencias y Tecnología",
         fecha: "2026-10-15",
         hora: "10:00 AM",
@@ -23,133 +20,144 @@ const eventosBaseIniciales = [
     }
 ];
 
+let indiceActual = 0;
+let intervaloCarrusel = null;
+
 /**
- * Obtiene los eventos desde localStorage. Si no existen, los inicializa.
+ * Obtiene la lista de eventos guardados en localStorage.
  */
-function obtenerEventos() {
-    const eventosGuardados = localStorage.getItem('eventos');
-    if (!eventosGuardados) {
-        localStorage.setItem('eventos', JSON.stringify(eventosBaseIniciales));
-        return eventosBaseIniciales;
+function obtenerEventosIndex() {
+    const almacenados = localStorage.getItem('eventos');
+    if (!almacenados) {
+        localStorage.setItem('eventos', JSON.stringify(eventosDefectoIndex));
+        return eventosDefectoIndex;
     }
     try {
-        const parsed = JSON.parse(eventosGuardados);
-        return Array.isArray(parsed) && parsed.length > 0 ? parsed : eventosBaseIniciales;
+        const parsed = JSON.parse(almacenados);
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : eventosDefectoIndex;
     } catch (e) {
-        console.error("Error al leer eventos desde localStorage:", e);
-        return eventosBaseIniciales;
+        console.error("Error al obtener eventos de localStorage:", e);
+        return eventosDefectoIndex;
     }
 }
 
 /**
- * Renderiza exclusivamente la información textual de cada evento en el carrusel
+ * Renderiza las diapositivas del carrusel con formato exclusivamente de texto.
  */
-function renderizarCarrusel() {
-    const contenedorSlides = document.getElementById('carouselSlides');
-    const contenedorDots = document.getElementById('carouselDots');
+function renderizarCarruselTexto() {
+    const container = document.getElementById('carouselSlides');
+    const dotsContainer = document.getElementById('carouselDots');
     
-    if (!contenedorSlides) return;
+    if (!container) return;
 
-    const listaEventos = obtenerEventos();
+    const eventos = obtenerEventosIndex();
 
-    contenedorSlides.innerHTML = "";
-    if (contenedorDots) contenedorDots.innerHTML = "";
+    if (eventos.length === 0) {
+        container.innerHTML = '<div class="slide-texto sin-eventos"><p>No hay eventos disponibles en este momento.</p></div>';
+        if (dotsContainer) dotsContainer.innerHTML = '';
+        return;
+    }
 
-    listaEventos.forEach((evento, idx) => {
-        const estaAgotado = (evento.aforo ?? 0) <= 0;
+    // Generar diapositivas únicamente con datos de texto (sin etiqueta <img>)
+    container.innerHTML = eventos.map((evento, index) => `
+        <div class="slide-texto ${index === 0 ? 'active' : ''}" data-index="${index}">
+            <div class="slide-info-card">
+                <span class="badge-destacado">Evento Destacado</span>
+                <h3 class="slide-titulo">${evento.titulo || 'Sin título'}</h3>
+                
+                <div class="slide-detalles">
+                    <p><span>📅 Fecha:</span> ${evento.fecha || 'Por definir'}</p>
+                    <p><span>⏰ Hora:</span> ${evento.hora || 'Por definir'}</p>
+                    <p><span>📍 Lugar:</span> ${evento.lugar || 'Por definir'}</p>
+                    <p><span>🎟️ Cupos Disponibles:</span> <strong>${evento.aforo ?? 0}</strong></p>
+                </div>
 
-        // Crear contenedor de texto del evento
-        const slide = document.createElement('div');
-        slide.className = `carousel-slide ${idx === 0 ? 'active' : ''}`;
-        slide.style.display = idx === 0 ? 'block' : 'none';
-        slide.style.padding = '2rem 3rem 2.5rem 3rem';
-        slide.style.textAlign = 'center';
-
-        slide.innerHTML = `
-            <h3 style="color: #1a365d; font-size: 1.35rem; margin-top: 0; margin-bottom: 0.8rem;">${evento.titulo || 'Sin título'}</h3>
-            
-            <div style="font-size: 0.95rem; color: #4a5568; line-height: 1.8; margin-bottom: 1.2rem;">
-                <p style="margin: 0;"><strong>📅 Fecha:</strong> ${evento.fecha || 'Por confirmar'}</p>
-                <p style="margin: 0;"><strong>⏰ Hora:</strong> ${evento.hora || 'Por confirmar'}</p>
-                <p style="margin: 0;"><strong>📍 Lugar:</strong> ${evento.lugar || 'Instalaciones del plantel'}</p>
-                <p style="margin: 0;"><strong>🎟️ Cupos disponibles:</strong> <span style="font-weight: bold; color: ${estaAgotado ? '#e53e3e' : '#2b6cb0'};">${evento.aforo ?? 0}</span></p>
+                <div class="slide-acciones">
+                    <a href="eventos.html" class="btn-reservar">
+                        🎟️ Reservar Entradas
+                    </a>
+                </div>
             </div>
+        </div>
+    `).join('');
 
-            <a href="eventos.html" class="btn-reservar">
-                ${estaAgotado ? 'Ver detalles' : 'Reservar Ticket ahora &rarr;'}
-            </a>
-        `;
+    // Generar los puntos indicadores inferiores
+    if (dotsContainer) {
+        dotsContainer.innerHTML = eventos.map((_, index) => `
+            <span class="dot ${index === 0 ? 'active' : ''}" onclick="irADiapositiva(${index})"></span>
+        `).join('');
+    }
 
-        contenedorSlides.appendChild(slide);
-
-        // Crear punto indicador inferior
-        if (contenedorDots) {
-            const dot = document.createElement('button');
-            dot.type = "button";
-            dot.className = `dot ${idx === 0 ? 'active' : ''}`;
-            dot.setAttribute('aria-label', `Ir al evento ${idx + 1}`);
-            dot.style.cssText = `width: 10px; height: 10px; border-radius: 50%; border: none; background: ${idx === 0 ? '#2b6cb0' : '#cbd5e0'}; cursor: pointer; transition: background 0.3s;`;
-            
-            dot.onclick = () => mostrarDiapositiva(idx);
-            contenedorDots.appendChild(dot);
-        }
-    });
-
-    iniciarAutoplay(listaEventos.length);
+    iniciarAutoPlay(eventos.length);
 }
 
 /**
- * Alterna entre los eventos según el índice seleccionado
+ * Muestra una diapositiva específica por su índice.
  */
 function mostrarDiapositiva(index) {
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.carousel-dots .dot');
-
+    const slides = document.querySelectorAll('.slide-texto');
+    const dots = document.querySelectorAll('.dot');
+    
     if (slides.length === 0) return;
 
-    if (index >= slides.length) indiceDiapositivaActual = 0;
-    else if (index < 0) indiceDiapositivaActual = slides.length - 1;
-    else indiceDiapositivaActual = index;
+    if (index >= slides.length) indiceActual = 0;
+    else if (index < 0) indiceActual = slides.length - 1;
+    else indiceActual = index;
 
     slides.forEach((slide, i) => {
-        slide.style.display = i === indiceDiapositivaActual ? 'block' : 'none';
+        slide.classList.toggle('active', i === indiceActual);
     });
 
     dots.forEach((dot, i) => {
-        dot.style.background = i === indiceDiapositivaActual ? '#2b6cb0' : '#cbd5e0';
+        dot.classList.toggle('active', i === indiceActual);
     });
 }
 
-/**
- * Rotación automática cada 5 segundos
- */
-function iniciarAutoplay(totalSlides) {
-    if (intervaloCarrusel) clearInterval(intervaloCarrusel);
-    if (totalSlides <= 1) return;
-
-    intervaloCarrusel = setInterval(() => {
-        mostrarDiapositiva(indiceDiapositivaActual + 1);
-    }, 5000);
+function siguienteDiapositiva() {
+    mostrarDiapositiva(indiceActual + 1);
 }
 
-// Inicialización de controles al cargar la página
+function anteriorDiapositiva() {
+    mostrarDiapositiva(indiceActual - 1);
+}
+
+function irADiapositiva(index) {
+    mostrarDiapositiva(index);
+    reiniciarAutoPlay();
+}
+
+/**
+ * Control del reproductor automático del carrusel.
+ */
+function iniciarAutoPlay(totalSlides) {
+    if (totalSlides <= 1) return;
+    clearInterval(intervaloCarrusel);
+    intervaloCarrusel = setInterval(siguienteDiapositiva, 5000);
+}
+
+function reiniciarAutoPlay() {
+    const eventos = obtenerEventosIndex();
+    iniciarAutoPlay(eventos.length);
+}
+
+// Escuchadores de eventos para la inicialización
 document.addEventListener('DOMContentLoaded', () => {
-    renderizarCarrusel();
+    renderizarCarruselTexto();
 
     const btnPrev = document.getElementById('btnPrev');
     const btnNext = document.getElementById('btnNext');
 
     if (btnPrev) {
         btnPrev.addEventListener('click', () => {
-            mostrarDiapositiva(indiceDiapositivaActual - 1);
-            iniciarAutoplay(document.querySelectorAll('.carousel-slide').length);
+            anteriorDiapositiva();
+            reiniciarAutoPlay();
         });
     }
 
     if (btnNext) {
         btnNext.addEventListener('click', () => {
-            mostrarDiapositiva(indiceDiapositivaActual + 1);
-            iniciarAutoplay(document.querySelectorAll('.carousel-slide').length);
+            siguienteDiapositiva();
+            reiniciarAutoPlay();
         });
     }
 });

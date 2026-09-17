@@ -3,43 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Catálogo de eventos e inscripciones de la U.E.F. Pablo Hannibal Vela Egüéz.">
     <title>Eventos Disponibles - U.E.F. Pablo Hannibal Vela Egüéz</title>
+    <!-- Hoja de estilos principal -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-    <!-- 1. BARRA DE NAVEGACIÓN (Mantenida del index) -->
-    <nav class="navbar">
-        <div class="nav-brand">
-            U.E.F. "Pablo Hannibal Vela Egüéz"
-        </div>
-        <div class="nav-buttons">
-            <a href="index.html" class="btn-nav">Inicio</a>
-            <a href="eventos.html" class="btn-nav active">Ver Eventos</a>
-            <a href="asistentes.html" class="btn-nav">Registrados</a>
-            <a href="admin.html" class="btn-nav btn-admin">Administración</a>
-        </div>
-    </nav>
+    <!-- 1. BARRA DE NAVEGACIÓN PRINCIPAL -->
+    <header>
+        <nav class="navbar" aria-label="Navegación principal">
+            <div class="nav-brand">
+                U.E.F. "Pablo Hannibal Vela Egüéz"
+            </div>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn-nav">Inicio</a>
+                <a href="eventos.html" class="btn-nav active">Ver Eventos</a>
+                <a href="asistentes.html" class="btn-nav">Registrados</a>
+                <a href="admin.html" class="btn-nav btn-admin">Administración</a>
+            </div>
+        </nav>
+    </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- CONTENEDOR PRINCIPAL DE CONTENIDO -->
     <main class="main-container">
         
+        <!-- LOGO INSTITUCIONAL -->
+        <section class="logo-section">
+            <img src="img/logo.jpg" alt="Logo U.E.F. Pablo Hannibal Vela Egüéz" class="logo-img">
+        </section>
+
+        <!-- ENCABEZADO DE SECCIÓN -->
         <header class="section-header">
             <h2>Eventos Institucionales Disponibles</h2>
             <p>Selecciona un evento para solicitar y reservar tu ticket de asistencia.</p>
         </header>
 
-        <!-- CONTENEDOR DE TARJETAS (Disposición 2x2 mediante CSS Grid) -->
-        <section id="eventosGrid" class="eventos-grid">
-            <!-- Los eventos se cargan dinámicamente aquí mediante JS -->
+        <!-- CONTENEDOR DE TARJETAS (Renderizado dinámico mediante JS) -->
+        <section id="eventosGrid" class="eventos-grid" aria-live="polite">
+            <div class="cargando-texto">Cargando catálogo de eventos...</div>
         </section>
 
     </main>
 
     <!-- 2. VENTANA MODAL / FORMULARIO DE RESERVA -->
-    <div id="modalReserva" class="modal">
+    <div id="modalReserva" class="modal" role="dialog" aria-labelledby="modalTituloEvento" aria-hidden="true">
         <div class="modal-content">
-            <span class="close-modal" onclick="cerrarModal()">&times;</span>
+            <button type="button" class="close-modal" onclick="cerrarModal()" aria-label="Cerrar modal">&times;</button>
             <h3 id="modalTituloEvento">Reservar Ticket</h3>
             
             <form id="formReserva" class="form-reserva">
@@ -47,7 +57,7 @@
 
                 <div class="form-group">
                     <label for="nombreReserva">Nombre Completo:</label>
-                    <input type="text" id="nombreReserva" placeholder="Ej. Juan Pérez" required>
+                    <input type="text" id="nombreReserva" placeholder="Ej. Juan Pérez" required autocomplete="name">
                 </div>
 
                 <div class="form-group">
@@ -57,7 +67,7 @@
 
                 <div class="form-group">
                     <label for="correoReserva">Correo Electrónico:</label>
-                    <input type="email" id="correoReserva" placeholder="ejemplo@correo.com" required>
+                    <input type="email" id="correoReserva" placeholder="ejemplo@correo.com" required autocomplete="email">
                 </div>
 
                 <div class="form-group">
@@ -75,7 +85,7 @@
         <p>&copy; 2026 U.E.F. "Pablo Hannibal Vela Egüéz" - Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Script para renderizar y reservar -->
+    <!-- Script de eventos y reservas -->
     <script src="js/eventos.js"></script>
 </body>
 </html>
