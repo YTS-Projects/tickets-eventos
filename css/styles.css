@@ -137,40 +137,55 @@ body {
 }
 
 /* ==========================================
-   3. CARRUSEL DE EVENTOS Y BOTÓN UNIFICADO (TEXTO SOLO)
+   3. CARRUSEL DE EVENTOS Y BOTÓN UNIFICADO (RESPONSIVE)
    ========================================== */
 .carousel-section {
     width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
     text-align: center;
-    padding: 1rem 0;
 }
 
 .carousel-wrapper {
     position: relative;
-    max-width: 650px;
+    width: 100%;
     margin: 0 auto;
-    overflow: hidden;
+    padding: 0 45px; /* Espacio para ubicar los botones laterales */
+    box-sizing: border-box;
 }
 
 .carousel-slides-container {
+    position: relative;
+    width: 100%;
+    min-height: 280px;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 280px;
-    padding: 1rem;
 }
 
-/* Transición suave para cambiar entre tarjetas */
+/* Ocultar diapositivas inactivas para evitar apilamiento vertical */
 .slide-texto {
     display: none;
     width: 100%;
-    opacity: 0;
-    transition: opacity 0.4s ease-in-out;
+    box-sizing: border-box;
 }
 
 .slide-texto.active {
     display: block;
-    opacity: 1;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(4px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
 }
 
 /* Tarjeta contenedora de datos textuales del evento */
@@ -178,28 +193,30 @@ body {
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
-    padding: 1.75rem 1.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     text-align: center;
+    box-sizing: border-box;
+    width: 100%;
     margin: 0 auto;
 }
 
 .badge-destacado {
     display: inline-block;
-    background-color: var(--color-primario);
+    background-color: var(--color-primario, #003366);
     color: #ffffff;
     font-size: 0.75rem;
     font-weight: 700;
     padding: 4px 12px;
     border-radius: 20px;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .slide-titulo {
-    font-size: 1.4rem;
-    color: var(--color-primario);
+    font-size: 1.3rem;
+    color: var(--color-primario, #003366);
     margin-bottom: 0.8rem;
     line-height: 1.3;
 }
@@ -212,7 +229,7 @@ body {
     max-width: 480px;
     margin: 0 auto 1rem auto;
     font-size: 0.95rem;
-    color: var(--color-texto-suave);
+    color: var(--color-texto-suave, #555555);
 }
 
 .slide-detalles span {
@@ -241,13 +258,46 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
+/* BOTONES LATERALES DE NAVEGACIÓN FLECHAS */
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--color-primario, #003366);
+    color: #ffffff;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.carousel-control:hover {
+    background-color: var(--color-acento-hover, #d97706);
+    transform: translateY(-50%) scale(1.08);
+}
+
+.carousel-control.prev {
+    left: 0;
+}
+
+.carousel-control.next {
+    right: 0;
+}
+
 /* PUNTOS INDICADORES DEL CARRUSEL */
 .carousel-dots {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    margin-top: 0.8rem;
+    margin-top: 1rem;
 }
 
 .dot {
@@ -260,9 +310,30 @@ body {
 }
 
 .dot.active {
-    background-color: var(--color-primario);
+    background-color: var(--color-primario, #003366);
     width: 22px;
     border-radius: 6px;
+}
+
+/* ADAPTACIÓN PARA PANTALLAS MÓVILES Y TABLETS PEQUEÑAS */
+@media (max-width: 600px) {
+    .carousel-wrapper {
+        padding: 0 35px;
+    }
+
+    .slide-info-card {
+        padding: 1.2rem 0.8rem;
+    }
+
+    .slide-titulo {
+        font-size: 1.15rem;
+    }
+
+    .carousel-control {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
 }
 
 /* ==========================================

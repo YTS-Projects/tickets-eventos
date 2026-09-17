@@ -42,7 +42,7 @@ function obtenerEventosIndex() {
 }
 
 /**
- * Renderiza las diapositivas del carrusel con formato exclusivamente de texto.
+ * Renderiza las diapositivas del carrusel en formato de tarjeta de texto individual.
  */
 function renderizarCarruselTexto() {
     const container = document.getElementById('carouselSlides');
@@ -53,12 +53,18 @@ function renderizarCarruselTexto() {
     const eventos = obtenerEventosIndex();
 
     if (eventos.length === 0) {
-        container.innerHTML = '<div class="slide-texto sin-eventos"><p>No hay eventos disponibles en este momento.</p></div>';
+        container.innerHTML = `
+            <div class="slide-texto active">
+                <div class="slide-info-card">
+                    <p>No hay eventos disponibles en este momento.</p>
+                </div>
+            </div>
+        `;
         if (dotsContainer) dotsContainer.innerHTML = '';
         return;
     }
 
-    // Generar diapositivas únicamente con datos de texto (sin etiqueta <img>)
+    // Generar las tarjetas ocultas por defecto excepto la primera (index === 0)
     container.innerHTML = eventos.map((evento, index) => `
         <div class="slide-texto ${index === 0 ? 'active' : ''}" data-index="${index}">
             <div class="slide-info-card">
@@ -66,10 +72,10 @@ function renderizarCarruselTexto() {
                 <h3 class="slide-titulo">${evento.titulo || 'Sin título'}</h3>
                 
                 <div class="slide-detalles">
-                    <p><span>📅 Fecha:</span> ${evento.fecha || 'Por definir'}</p>
-                    <p><span>⏰ Hora:</span> ${evento.hora || 'Por definir'}</p>
-                    <p><span>📍 Lugar:</span> ${evento.lugar || 'Por definir'}</p>
-                    <p><span>🎟️ Cupos Disponibles:</span> <strong>${evento.aforo ?? 0}</strong></p>
+                    <p>📅 <span>Fecha:</span> ${evento.fecha || 'Por definir'}</p>
+                    <p>⏰ <span>Hora:</span> ${evento.hora || 'Por definir'}</p>
+                    <p>📍 <span>Lugar:</span> ${evento.lugar || 'Por definir'}</p>
+                    <p>🎟️ <span>Cupos Disponibles:</span> <strong>${evento.aforo ?? 0}</strong></p>
                 </div>
 
                 <div class="slide-acciones">
@@ -92,7 +98,7 @@ function renderizarCarruselTexto() {
 }
 
 /**
- * Muestra una diapositiva específica por su índice.
+ * Muestra únicamente la tarjeta activa según su índice.
  */
 function mostrarDiapositiva(index) {
     const slides = document.querySelectorAll('.slide-texto');
@@ -127,7 +133,7 @@ function irADiapositiva(index) {
 }
 
 /**
- * Control del reproductor automático del carrusel.
+ * Control del reproductor automático.
  */
 function iniciarAutoPlay(totalSlides) {
     if (totalSlides <= 1) return;
@@ -140,7 +146,7 @@ function reiniciarAutoPlay() {
     iniciarAutoPlay(eventos.length);
 }
 
-// Escuchadores de eventos para la inicialización
+// Inicialización de escuchadores al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
     renderizarCarruselTexto();
 
