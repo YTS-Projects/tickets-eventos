@@ -72,6 +72,37 @@ body {
 }
 
 /* ==========================================
+   ADAPTACIÓN PARA DISPOSITIVOS MÓVILES
+   ========================================== */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1rem 0.8rem;
+        gap: 0.8rem;
+    }
+
+    .nav-brand {
+        width: 100%;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+
+    .nav-buttons {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.4rem;
+    }
+
+    .btn-nav {
+        padding: 0.4rem 0.7rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ==========================================
    CONTENEDOR PRINCIPAL Y LOGO
    ========================================== */
 .main-container {
@@ -189,16 +220,9 @@ footer p {
 
 .eventos-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Organiza de 2 en 2 */
+    grid-template-columns: repeat(2, 1fr); /* Organiza de 2 en 2 en escritorio */
     gap: 1.5rem;
     width: 100%;
-}
-
-/* En pantallas pequeñas pasa a 1 columna automáticamente */
-@media (max-width: 768px) {
-    .eventos-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* ==========================================
@@ -210,7 +234,7 @@ footer p {
     padding: 1.5rem;
     box-shadow: var(--sombra-suave);
     display: flex;
-    flex-direction: column;         /* Estructura vertical */
+    flex-direction: column;        /* Estructura vertical */
     justify-content: space-between; /* Distribución de espacio */
     border-left: 5px solid var(--color-secundario);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -279,7 +303,7 @@ footer p {
 }
 
 /* ==========================================
-   BOTÓN RESERVAR
+   BOTÓN RESERVAR Y BOTONES GENERALES
    ========================================== */
 .btn-reservar {
     background-color: var(--color-acento); /* Color dorado/miel definido en :root */
@@ -379,18 +403,79 @@ footer p {
     background-color: var(--color-secundario);
 }
 
+/* ==========================================
+   ADAPTACIÓN RESPONSIVA EN MÓVILES (≤768px)
+   ========================================== */
+@media (max-width: 768px) {
+    
+    /* 1. Cambio a 1 sola columna */
+    .eventos-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+    }
 
+    /* 2. Ajuste de encabezados */
+    .section-header {
+        margin-bottom: 1.2rem;
+    }
 
+    .section-header h2 {
+        font-size: 1.4rem;
+    }
 
+    /* 3. Reorganización vertical de la tarjeta en móvil */
+    .card-body {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+    }
 
+    .card-img-container {
+        flex: none;
+        max-width: 100%;
+        width: 100%;
+        height: 160px; /* Tamaño optimizado para vista vertical en celular */
+    }
+
+    .card-info {
+        width: 100%;
+    }
+
+    .card-footer {
+        justify-content: stretch; /* Ocupa el ancho para facilitar el toque táctil */
+    }
+
+    .btn-reservar {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem;
+    }
+
+    /* 4. Ajustes del Modal para pantallas estrechas */
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem 1rem;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
 
 
 
 
 
 /* ==========================================
-   PANEL ADMINISTRADOR
+   PANEL ADMINISTRADOR Y COMPONENTES
    ========================================== */
+
+/* Encabezado especial para el panel de administración */
+.section-header-admin {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
 
 /* Alineación en cuadrícula */
 .admin-grid {
@@ -474,6 +559,7 @@ footer p {
     margin-top: 2px;
 }
 
+/* BOTONES Y FORMULARIOS DE ADMINISTRACIÓN */
 .btn-eliminar {
     background-color: #e53e3e;
     color: white;
@@ -491,13 +577,24 @@ footer p {
     background-color: #c53030;
 }
 
+.btn-block {
+    width: 100%;
+    margin-top: auto;
+}
+
+.input-pin {
+    text-align: center;
+    letter-spacing: 3px;
+    font-size: 1.1rem;
+}
 
 
-/* =========================================
-   SECCIÓN DE ASISTENTES
+
+/* ==========================================
+   SECCIÓN DE ASISTENTES Y TABLA MODAL
    ========================================== */
 
-/* Grid estricto de 2 columnas */
+/* Grid estricto de 2 columnas (1 columna en móviles) */
 .eventos-grid-dos-columnas {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -534,8 +631,9 @@ footer p {
     font-weight: bold;
 }
 
-/* Tabla de Asistentes */
+/* Tabla de Asistentes y Scroll Container */
 .tabla-asistentes-container {
+    overflow-x: auto;
     overflow-y: auto;
     flex-grow: 1;
     border: 1px solid #e2e8f0;
@@ -546,6 +644,7 @@ footer p {
 
 .tabla-asistentes {
     width: 100%;
+    min-width: 580px; /* Evita colapsar texto en móviles */
     border-collapse: collapse;
     text-align: left;
     font-size: 0.9rem;
@@ -576,12 +675,12 @@ footer p {
     text-align: center;
 }
 
+/* Acciones del Modal */
 .modal-footer-acciones {
     margin-top: 1rem;
     text-align: right;
 }
 
-/* Respaldos de color directo en botones por si falla o no carga el JS */
 .btn-cerrar-modal {
     background-color: var(--color-texto-suave, #718096);
     color: #ffffff;
@@ -597,7 +696,7 @@ footer p {
     background-color: #4a5568;
 }
 
-/* Estilo fallback para botones generados dentro de las tarjetas */
+/* Estilo fallback para botones generados dinámicamente */
 .btn-ver-asistentes {
     background-color: var(--color-primario, #1a365d);
     color: #ffffff;
@@ -608,6 +707,7 @@ footer p {
     cursor: pointer;
     display: inline-block;
     text-align: center;
+    transition: background-color 0.2s ease;
 }
 
 .btn-ver-asistentes:hover {

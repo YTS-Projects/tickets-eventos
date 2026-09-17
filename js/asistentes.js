@@ -21,7 +21,7 @@ function renderizarTarjetasAsistentes() {
     const reservas = obtenerReservas();
 
     if (eventos.length === 0) {
-        grid.innerHTML = '<p class="texto-sin-datos" style="grid-column: 1/-1; text-align: center;">No hay eventos creados actualmente.</p>';
+        grid.innerHTML = '<p class="texto-sin-datos text-center">No hay eventos creados actualmente.</p>';
         return;
     }
 
@@ -52,7 +52,6 @@ function renderizarTarjetasAsistentes() {
                 </div>
 
                 <div class="card-footer">
-                    <!-- Se remueve cualquier style="background-color:..." inline para heredar 100% las propiedades del CSS -->
                     <button class="btn-reservar" onclick="abrirModalAsistentes('${evento.id}', '${evento.titulo.replace(/'/g, "\\'")}')">
                         📋 Ver Registrados
                     </button>
@@ -91,7 +90,7 @@ function abrirModalAsistentes(eventoId, eventoTitulo) {
     if (asistentesFiltrados.length === 0) {
         tablaBody.innerHTML = `
             <tr>
-                <td colspan="6" class="texto-sin-datos" style="text-align: center; padding: 1.5rem;">
+                <td colspan="6" class="texto-sin-datos text-center">
                     No hay personas registradas para este evento aún.
                 </td>
             </tr>
@@ -99,12 +98,12 @@ function abrirModalAsistentes(eventoId, eventoTitulo) {
     } else {
         tablaBody.innerHTML = asistentesFiltrados.map((asistente, index) => `
             <tr>
-                <td style="padding: 0.6rem;">${index + 1}</td>
-                <td style="padding: 0.6rem; font-weight: bold;">${asistente.nombreCompleto || asistente.nombre || 'N/A'}</td>
-                <td style="padding: 0.6rem;">${asistente.identificacion || 'S/I'}</td>
-                <td style="padding: 0.6rem;">${asistente.correo || 'S/N'}</td>
-                <td style="padding: 0.6rem; text-align: center;" class="texto-destacado">${asistente.cantidad || asistente.tickets || 1}</td>
-                <td style="padding: 0.6rem; font-size: 0.85rem;" class="texto-suave">${asistente.fechaReserva || 'N/A'}</td>
+                <td>${index + 1}</td>
+                <td><strong>${asistente.nombreCompleto || asistente.nombre || 'N/A'}</strong></td>
+                <td>${asistente.identificacion || 'S/I'}</td>
+                <td>${asistente.correo || 'S/N'}</td>
+                <td class="texto-centro texto-destacado">${asistente.cantidad || asistente.tickets || 1}</td>
+                <td class="texto-suave">${asistente.fechaReserva || 'N/A'}</td>
             </tr>
         `).join('');
     }

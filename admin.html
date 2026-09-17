@@ -24,71 +24,75 @@
     </header>
 
     <!-- CONTENEDOR PRINCIPAL -->
-    <main class="main-container" style="max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem;">
+    <main class="main-container">
         
-        <header class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; width: 100%;">
+        <header class="section-header section-header-admin">
             <div>
-                <h2 style="color: var(--color-primario); margin-bottom: 0.2rem;">Panel de Administración</h2>
-                <p style="color: var(--color-texto-suave); font-size: 0.95rem;">Gestiona y administra los eventos institucionales.</p>
+                <h2>Panel de Administración</h2>
+                <p>Gestiona y administra los eventos institucionales.</p>
             </div>
-            <!-- Acceso directo al listado de asistentes utilizando .btn-reservar -->
+            <!-- Acceso directo al listado de asistentes -->
             <a href="asistentes.html" class="btn-reservar">
                 📋 Ver Listado de Asistentes &rarr;
             </a>
         </header>
 
-        <!-- CONTENEDOR EN 2 COLUMNAS (Ambas tarjetas estiradas al mismo alto) -->
-        <div class="admin-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; align-items: stretch; width: 100%;">
+        <!-- CONTENEDOR EN 2 COLUMNAS (MÓVIL EN 1 COLUMNA) -->
+        <div class="admin-grid">
 
             <!-- COLUMNA IZQUIERDA: FORMULARIO -->
-            <section class="admin-card" style="background: var(--color-tarjeta); padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: var(--sombra-suave); display: flex; flex-direction: column;">
-                <h3 style="color: var(--color-primario); margin-top: 0; margin-bottom: 1rem;">Agregar Nuevo Evento</h3>
+            <section class="card-admin">
+                <h3>Agregar Nuevo Evento</h3>
                 
-                <form id="formAgregarEvento" class="form-reserva" style="display: flex; flex-direction: column; height: 100%;">
+                <form id="formAgregarEvento" class="form-admin">
                     
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="tituloEvento" style="display: block; font-weight: bold; margin-bottom: 0.3rem;">Título del Evento:</label>
-                        <input type="text" id="tituloEvento" placeholder="Ej. Casa Abierta de Ciencias" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px;">
+                    <div class="form-group">
+                        <label for="tituloEvento">Título del Evento:</label>
+                        <input type="text" id="tituloEvento" placeholder="Ej. Casa Abierta de Ciencias" required>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="fechaEvento" style="display: block; font-weight: bold; margin-bottom: 0.3rem;">Fecha del Evento:</label>
-                        <input type="date" id="fechaEvento" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px;">
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="fechaEvento">Fecha del Evento:</label>
+                            <input type="date" id="fechaEvento" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="horaEvento">Hora del Evento:</label>
+                            <input type="text" id="horaEvento" placeholder="Ej. 09:00 AM" required>
+                        </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="horaEvento" style="display: block; font-weight: bold; margin-bottom: 0.3rem;">Hora del Evento:</label>
-                        <input type="text" id="horaEvento" placeholder="Ej. 09:00 AM" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px;">
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="lugarEvento">Lugar / Ubicación:</label>
+                            <input type="text" id="lugarEvento" placeholder="Ej. Auditorio Principal" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="aforoEvento">Aforo (Cupos):</label>
+                            <input type="number" id="aforoEvento" min="1" placeholder="Ej. 100" required>
+                        </div>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="lugarEvento" style="display: block; font-weight: bold; margin-bottom: 0.3rem;">Lugar / Ubicación:</label>
-                        <input type="text" id="lugarEvento" placeholder="Ej. Auditorio Principal o Patio" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px;">
+                    <div class="form-group">
+                        <label for="imagenEvento">Imagen / Afiche (Opcional):</label>
+                        <input type="file" id="imagenEvento" accept="image/*">
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="aforoEvento" style="display: block; font-weight: bold; margin-bottom: 0.3rem;">Aforo (Cupos Disponibles):</label>
-                        <input type="number" id="aforoEvento" min="1" placeholder="Ej. 100" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px;">
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 1.2rem;">
-                        <label for="imagenEvento" style="display: block; font-weight: bold; margin-bottom: 0.3rem;">Imagen / Afiche (Opcional):</label>
-                        <input type="file" id="imagenEvento" accept="image/*" style="width: 100%;">
-                    </div>
-
-                    <!-- Botón con clase .btn-reservar -->
-                    <button type="submit" class="btn-reservar" style="width: 100%; margin-top: auto;">
+                    <!-- Botón submit -->
+                    <button type="submit" class="btn-reservar btn-block">
                         Agregar Evento
                     </button>
                 </form>
             </section>
 
-            <!-- COLUMNA DERECHA: LISTADO DE EVENTOS APERTURADOS (Misma altura que el formulario) -->
-            <section class="admin-card" style="background: var(--color-tarjeta); padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: var(--sombra-suave); display: flex; flex-direction: column; min-height: 100%;">
-                <h3 style="color: var(--color-primario); margin-top: 0; margin-bottom: 1rem;">Eventos Aperturados</h3>
+            <!-- COLUMNA DERECHA: LISTADO DE EVENTOS APERTURADOS -->
+            <section class="card-admin">
+                <h3>Eventos Aperturados</h3>
 
-                <!-- LISTA DE EVENTOS OCUPANDO EL ESPACIO RESTANTE -->
-                <div id="listaEventosAdmin" class="admin-event-list" style="flex: 1; min-height: 0; overflow-y: auto;">
+                <!-- LISTA DE EVENTOS -->
+                <div id="listaEventosAdmin" class="admin-event-list">
                     <!-- Se cargan dinámicamente con JS -->
                 </div>
             </section>
@@ -98,22 +102,21 @@
     </main>
 
     <!-- VENTANA MODAL / PIN DE CONFIRMACIÓN -->
-    <div id="modalAuth" class="modal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;">
-        <div class="modal-content" style="background: var(--color-tarjeta); padding: 2rem; border-radius: 8px; max-width: 350px; width: 90%; position: relative;">
-            <span class="close-modal" onclick="cerrarModalAuth()" style="position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer;">&times;</span>
-            <h3 style="color: var(--color-primario); margin-top: 0;">Confirmar Acción</h3>
-            <p id="modalMensajeAccion" style="font-size: 0.85rem; color: var(--color-texto); margin-top: 0.5rem;">
+    <div id="modalAuth" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarModalAuth()">&times;</span>
+            <h3>Confirmar Acción</h3>
+            <p id="modalMensajeAccion">
                 Ingresa el código PIN para confirmar la acción.
             </p>
             
-            <form id="formAuth" class="form-reserva" style="margin-top: 1rem;">
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="codigoAdmin" style="display: block; font-weight: bold; margin-bottom: 0.3rem;">Código PIN:</label>
-                    <input type="password" id="codigoAdmin" placeholder="Ej. 1234" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e0; border-radius: 4px; text-align: center; letter-spacing: 2px; font-size: 1.1rem;">
+            <form id="formAuth" class="form-reserva">
+                <div class="form-group">
+                    <label for="codigoAdmin">Código PIN:</label>
+                    <input type="password" id="codigoAdmin" placeholder="Ej. 1234" required class="input-pin">
                 </div>
 
-                <!-- Botón de la modal con clase .btn-reservar -->
-                <button type="submit" class="btn-reservar" style="width: 100%;">Validar y Confirmar</button>
+                <button type="submit" class="btn-reservar btn-block">Validar y Confirmar</button>
             </form>
         </div>
     </div>

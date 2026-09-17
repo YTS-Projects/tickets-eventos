@@ -45,7 +45,7 @@ function obtenerEventos() {
     }
 }
 
-// Mostrar los eventos aperturados en el panel
+// Mostrar los eventos aperturados en el panel usando clases CSS limpias
 function renderizarListaAdmin() {
     const contenedor = document.getElementById('listaEventosAdmin');
     if (!contenedor) return;
@@ -53,19 +53,17 @@ function renderizarListaAdmin() {
     const eventos = obtenerEventos();
 
     if (eventos.length === 0) {
-        contenedor.innerHTML = '<p style="text-align: center; color: var(--color-texto-suave, #718096); padding: 1rem;">No hay eventos creados actualmente.</p>';
+        contenedor.innerHTML = '<p class="sin-eventos-msg">No hay eventos creados actualmente.</p>';
         return;
     }
 
     contenedor.innerHTML = eventos.map(evento => `
-        <div class="admin-event-item" style="border: 1px solid #e2e8f0; padding: 0.8rem 1rem; border-radius: 6px; margin-bottom: 0.8rem; background: #f7fafc; display: flex; justify-content: space-between; align-items: center;">
+        <div class="admin-event-item">
             <div class="admin-event-item-info">
-                <strong style="display: block; color: #1a365d; margin-bottom: 0.2rem;">${evento.titulo || 'Sin título'}</strong>
-                <span style="font-size: 0.85rem; color: #4a5568;">
-                    📅 ${evento.fecha || 'Sin fecha'} | ⏰ ${evento.hora || 'Sin hora'} | 🎟️ Cupos: <strong>${evento.aforo ?? 0}</strong>
-                </span>
+                <strong>${evento.titulo || 'Sin título'}</strong>
+                <span>📅 ${evento.fecha || 'Sin fecha'} | ⏰ ${evento.hora || 'Sin hora'} | 🎟️ Cupos: <strong>${evento.aforo ?? 0}</strong></span>
             </div>
-            <button class="btn-eliminar" onclick="solicitarEliminacion('${evento.id}')" style="background: #e53e3e; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">
+            <button class="btn-eliminar" onclick="solicitarEliminacion('${evento.id}')">
                 Eliminar
             </button>
         </div>
