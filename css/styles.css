@@ -616,9 +616,6 @@ footer p {
 }
 
 
-
-
-
 /* ==========================================
    PANEL ADMINISTRADOR Y COMPONENTES
    ========================================== */
@@ -632,13 +629,14 @@ footer p {
     gap: 1rem;
 }
 
-/* Alineación en cuadrícula */
+/* Alineación en cuadrícula: alineadas en la parte superior */
 .admin-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     width: 100%;
-    align-items: stretch; /* Estira ambas tarjetas para que tengan exactamente la misma altura */
+    align-items: start; /* Mantiene ambas tarjetas niveladas por la parte superior */
+    margin-top: 1.5rem;
 }
 
 @media (max-width: 850px) {
@@ -647,33 +645,37 @@ footer p {
     }
 }
 
-/* Tarjetas principales ajustadas con Flexbox */
-.admin-card {
-    background-color: var(--color-tarjeta);
+/* Tarjetas principales con borde y contorno visible */
+.admin-card,
+.card-admin {
+    background-color: var(--color-tarjeta, #ffffff);
     padding: 1.8rem;
-    border-radius: 10px;
-    box-shadow: var(--sombra-suave);
+    border-radius: 12px;
+    border: 1px solid #cbd5e1; /* Contorno visible y definido */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra marcada para destacar del fondo */
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Distribuye el contenido uniformemente */
+    box-sizing: border-box;
 }
 
-.admin-card h3 {
-    color: var(--color-primario);
-    margin-bottom: 0.3rem;
+.admin-card h3,
+.card-admin h3 {
+    color: var(--color-primario, #1e293b);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 0.5rem;
 }
 
-/* LISTA DE EVENTOS: AJUSTADA EXACTAMENTE A 7 ELEMENTOS */
+/* LISTA DE EVENTOS: SCROLL LIMITANTE */
 .admin-event-list {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    max-height: 580px;    /* Altura ajustada para albergar hasta 7 tarjetas de eventos */
-    overflow-y: auto;     /* Activa la barra de desplazamiento a partir del 8vo evento */
-    padding-right: 6px;
+    gap: 0.75rem;
+    max-height: 520px;    /* Limita la altura del contenedor */
+    overflow-y: auto;     /* Activa la barra de desplazamiento al superar la altura */
+    padding-right: 8px;
     margin-top: 0.8rem;
-    flex: 1;              /* Ocupa el espacio disponible proporcionalmente */
 }
 
 /* Estilos de la barra de desplazamiento */
@@ -687,8 +689,12 @@ footer p {
 }
 
 .admin-event-list::-webkit-scrollbar-thumb {
-    background: var(--color-secundario);
+    background: var(--color-secundario, #94a3b8);
     border-radius: 4px;
+}
+
+.admin-event-list::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
 }
 
 /* ELEMENTOS INDIVIDUALES DE LA LISTA */
@@ -696,31 +702,37 @@ footer p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.65rem 0.9rem; /* Padding optimizado */
-    background-color: var(--color-fondo);
-    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-fondo, #f8fafc);
+    border-radius: 8px;
     border: 1px solid #e2e8f0;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-event-item:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .admin-event-item-info strong {
-    color: var(--color-primario);
-    font-size: 0.9rem;
+    color: var(--color-primario, #0f172a);
+    font-size: 0.95rem;
+    display: block;
 }
 
 .admin-event-item-info span {
-    font-size: 0.8rem;
-    color: var(--color-texto-suave);
+    font-size: 0.825rem;
+    color: var(--color-texto-suave, #64748b);
     display: block;
-    margin-top: 2px;
+    margin-top: 3px;
 }
 
 /* BOTONES Y FORMULARIOS DE ADMINISTRACIÓN */
 .btn-eliminar {
     background-color: #e53e3e;
-    color: white;
+    color: #ffffff;
     border: none;
-    padding: 0.4rem 0.75rem;
-    border-radius: 5px;
+    padding: 0.45rem 0.85rem;
+    border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
     font-size: 0.8rem;
@@ -734,7 +746,7 @@ footer p {
 
 .btn-block {
     width: 100%;
-    margin-top: auto;
+    margin-top: 1rem;
 }
 
 .input-pin {
