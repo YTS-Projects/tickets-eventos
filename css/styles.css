@@ -339,9 +339,15 @@ body {
 
 /* ADAPTACIÓN PARA PANTALLAS MÓVILES Y TABLETS PEQUEÑAS */
 @media (max-width: 600px) {
-    /* Ocultar sección del logo institucional en dispositivos móviles */
+    /* Logo institucional visible y redimensionado para pantallas pequeñas */
     .logo-section {
-        display: none !important;
+        display: block;
+        margin-bottom: 1.5rem;
+    }
+
+    .logo-img {
+        max-width: 160px;
+        height: auto;
     }
 
     /* Ajuste de imágenes para afiches y tarjetas de eventos */
