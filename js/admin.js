@@ -7,7 +7,7 @@ let accionPendiente = null;
 let eventoTemporal = null;
 let idEliminarTemporal = null;
 
-// Eventos de prueba iniciales por si LocalStorage está vacío
+// Eventos de prueba iniciales con las rutas de imágenes locales corregidas
 const eventosInicialesAdmin = [
     {
         id: 1,
@@ -16,7 +16,7 @@ const eventosInicialesAdmin = [
         hora: "08:30 AM",
         lugar: "Patio Principal de la Institución",
         aforo: 150,
-        imagen: "img/logo.jpg"
+        imagen: "img/bandera.jpg"
     },
     {
         id: 2,
@@ -25,7 +25,7 @@ const eventosInicialesAdmin = [
         hora: "10:00 AM",
         lugar: "Auditorio Institucional",
         aforo: 80,
-        imagen: "img/logo.jpg"
+        imagen: "img/tech.jpg"
     }
 ];
 
@@ -38,7 +38,7 @@ function obtenerEventos() {
     }
     try {
         const parsed = JSON.parse(almacenados);
-        return Array.isArray(parsed) ? parsed : eventosInicialesAdmin;
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : eventosInicialesAdmin;
     } catch (e) {
         console.error("Error al obtener eventos de localStorage:", e);
         return eventosInicialesAdmin;
@@ -87,7 +87,7 @@ if (formAgregar) {
             hora: document.getElementById('horaEvento').value.trim(),
             lugar: document.getElementById('lugarEvento').value.trim(),
             aforo: parseInt(document.getElementById('aforoEvento').value, 10),
-            imagen: 'img/logo.jpg' // Imagen por defecto
+            imagen: 'img/logo.jpg' // Imagen por defecto si no sube ninguna
         };
 
         // Si seleccionó un archivo local, lo convertimos a Base64

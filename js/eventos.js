@@ -9,7 +9,7 @@ const eventosIniciales = [
         hora: "08:30 AM",
         lugar: "Patio Principal de la Institución",
         aforo: 150,
-        imagen: "img/logo.jpg"
+        imagen: "img/bandera.jpg"
     },
     {
         id: 2,
@@ -18,7 +18,7 @@ const eventosIniciales = [
         hora: "10:00 AM",
         lugar: "Auditorio Institucional",
         aforo: 80,
-        imagen: "img/logo.jpg"
+        imagen: "img/tech.jpg"
     }
 ];
 
@@ -63,13 +63,13 @@ function renderizarEventos() {
                 <!-- Contenedor central: Imagen + Info -->
                 <div class="card-body">
                     <div class="card-img-container">
-                        <img src="${evento.imagen && evento.imagen.trim() !== '' ? evento.imagen : imagenPorDefecto}" alt="${evento.titulo}">
+                        <img src="${evento.imagen && evento.imagen.trim() !== '' ? evento.imagen : imagenPorDefecto}" alt="${evento.titulo}" loading="lazy">
                     </div>
                     <div class="card-info">
                         <p><span>Fecha:</span> ${evento.fecha || 'Por confirmar'}</p>
                         <p><span>Hora:</span> ${evento.hora || 'Por confirmar'}</p>
                         <p><span>Lugar:</span> ${evento.lugar || 'Instalaciones'}</p>
-                        <p><span>Cupos:</span> <strong style="color: ${estaAgotado ? '#e53e3e' : '#2b6cb0'};">${evento.aforo ?? 0}</strong></p>
+                        <p><span>Cupos:</span> <strong style="color: ${estaAgotado ? '#e53e3e' : '#2b6cb0'};">${evento.aforo ?? 0} libres</strong></p>
                     </div>
                 </div>
 
@@ -87,7 +87,6 @@ function renderizarEventos() {
 // Abrir Modal de reserva
 function abrirModal(id) {
     const eventos = obtenerEventos();
-    // Comparación flexible (String/Number) para compatibilidad con IDs numéricos o string
     const evento = eventos.find(e => String(e.id) === String(id));
 
     if (evento && evento.aforo > 0) {
