@@ -75,7 +75,7 @@ body {
    ADAPTACIÓN PARA DISPOSITIVOS MÓVILES
    ========================================== */
 @media (max-width: 768px) {
-    /* Barra de navegación */
+    /* 1. Barra de navegación */
     .navbar {
         flex-direction: column;
         align-items: center;
@@ -102,13 +102,25 @@ body {
         font-size: 0.85rem;
     }
 
-    /* Ocultar logo institucional en pantallas pequeñas */
+    /* 2. Control del Logo: Oculto en secundarias, VISIBLE en index.html */
     .logo-section {
-        display: none !important;
+        display: none;
     }
 
-    /* Ajuste de imágenes para que no desborden en móviles */
-    .logo-img,
+    body.pagina-inicio .logo-section {
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+
+    body.pagina-inicio .logo-img {
+        max-width: 150px;
+        height: auto;
+    }
+
+    /* 3. Ajuste de imágenes generales para evitar desbordamiento */
     .evento-card img,
     .card-admin img,
     .carousel-slide img {
@@ -117,10 +129,51 @@ body {
         object-fit: cover;
     }
 
-    /* Cuadrícula de administración a 1 sola columna */
-    .admin-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
+    /* 4. Corrección de deformación en Panel de Administración (admin.html) */
+    .admin-container,
+    .admin-card,
+    .panel-admin,
+    .main-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 1rem 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Conversión de cuadrículas y formularios a 1 sola columna vertical */
+    .admin-grid,
+    .form-grid,
+    .form-row,
+    .eventos-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 1rem !important;
+    }
+
+    /* Insumos y campos de formulario responsivos */
+    form, 
+    .form-group,
+    input,
+    select,
+    textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 16px !important; /* Previene el zoom automático en iOS */
+    }
+
+    /* Tablas responsivas con desplazamiento horizontal sin deformar la pantalla */
+    .table-responsive,
+    .table-container {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        width: 100% !important;
+        min-width: 450px;
     }
 }
 
@@ -676,6 +729,7 @@ footer p {
     }
 }
 
+
 /* ==========================================
    PANEL ADMINISTRADOR Y COMPONENTES
    ========================================== */
@@ -695,14 +749,8 @@ footer p {
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     width: 100%;
-    align-items: start; /* Mantiene ambas tarjetas niveladas por la parte superior */
+    align-items: start;
     margin-top: 1.5rem;
-}
-
-@media (max-width: 850px) {
-    .admin-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* Tarjetas principales con borde y contorno visible */
@@ -711,8 +759,8 @@ footer p {
     background-color: var(--color-tarjeta, #ffffff);
     padding: 1.8rem;
     border-radius: 12px;
-    border: 1px solid #cbd5e1; /* Contorno visible y definido */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra marcada para destacar del fondo */
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     width: 100%;
     box-sizing: border-box;
 }
@@ -734,7 +782,7 @@ footer p {
     gap: 0.75rem;
     max-height: 520px;    /* Limita la altura del contenedor */
     overflow-y: auto;     /* Activa la barra de desplazamiento al superar la altura */
-    padding-right: 8px;
+    padding-right: 4px;
     margin-top: 0.8rem;
 }
 
@@ -762,21 +810,29 @@ footer p {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.8rem;
     padding: 0.75rem 1rem;
     background-color: var(--color-fondo, #f8fafc);
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
 }
 
 .admin-event-item:hover {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
+.admin-event-item-info {
+    flex: 1;
+    min-width: 0; /* Permite que el texto se ajuste sin ensanchar la tarjeta */
+}
+
 .admin-event-item-info strong {
     color: var(--color-primario, #0f172a);
     font-size: 0.95rem;
     display: block;
+    overflow-wrap: anywhere; /* Impide que los títulos largos rompan el ancho del contenedor */
 }
 
 .admin-event-item-info span {
@@ -807,12 +863,48 @@ footer p {
 .btn-block {
     width: 100%;
     margin-top: 1rem;
+    box-sizing: border-box;
 }
 
 .input-pin {
     text-align: center;
     letter-spacing: 3px;
     font-size: 1.1rem;
+}
+
+/* ==========================================
+   ADAPTACIÓN PARA PANTALLAS MÓVILES (≤768px)
+   ========================================== */
+@media (max-width: 768px) {
+    .section-header-admin {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .admin-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .admin-card,
+    .card-admin {
+        padding: 1.2rem 0.9rem;
+    }
+
+    /* Reestructuración de tarjetas individuales en pantallas pequeñas */
+    .admin-event-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+    }
+
+    .admin-event-item .btn-eliminar {
+        width: 100%;
+        text-align: center;
+        padding: 0.55rem;
+    }
 }
 
 

@@ -26,16 +26,16 @@
     </header>
 
     <!-- CONTENEDOR PRINCIPAL DE CONTENIDO -->
-    <main class="main-container">
+    <main class="main-container admin-container">
 
         <!-- ENCABEZADO DE LA SECCIÓN DE ADMINISTRACIÓN -->
         <header class="section-header section-header-admin">
-            <div>
+            <div class="section-header-text">
                 <h2>Panel de Administración</h2>
                 <p>Gestiona, crea y administra los eventos institucionales.</p>
             </div>
             <!-- Acceso directo al listado de asistentes -->
-            <a href="asistentes.html" class="btn-reservar">
+            <a href="asistentes.html" class="btn-reservar btn-header-admin">
                 📋 Ver Listado de Asistentes &rarr;
             </a>
         </header>
@@ -82,7 +82,7 @@
 
                     <div class="form-group">
                         <label for="imagenEvento">Imagen / Afiche (Opcional):</label>
-                        <input type="file" id="imagenEvento" accept="image/*">
+                        <input type="file" id="imagenEvento" accept="image/*" class="input-file-custom">
                         <small class="texto-suave">Si no seleccionas una imagen, se asignará la imagen por defecto.</small>
                     </div>
 
