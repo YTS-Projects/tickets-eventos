@@ -22,12 +22,14 @@ const eventosIniciales = [
     }
 ];
 
+const API_URL = 'https://script.google.com/macros/s/AKfycbw4cn3p2Q6pltmQyI1c2sUisT_aitE7DeFWi8FIV-Vu73fCrcoEGQsQAMGZJUS_9cCB/exec';
+
 /**
  * Carga eventos guardados desde LocalStorage o inicializa los valores por defecto.
  */
 function obtenerEventos() {
     const almacenados = localStorage.getItem('eventos');
-    if (!almacenados) {
+    if (!almacenados) { 
         localStorage.setItem('eventos', JSON.stringify(eventosIniciales));
         return eventosIniciales;
     }
@@ -112,11 +114,91 @@ function abrirModal(id) {
         }
 
         if (modalReserva) {
+            const qrContainer = document.getElementById('qrContainer');
+            if (qrContainer) qrContainer.innerHTML = '';
             modalReserva.style.display = 'flex';
             modalReserva.setAttribute('aria-hidden', 'false');
         }
     } else {
         alert('Lo sentimos, este evento ya no tiene cupos disponibles.');
+    }
+}
+
+/**
+ * Envía la reserva a Google Apps Script y genera un QR único cuando la API la confirma.
+ */
+async function procesarReservaFormulario(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const botonEnviar = form.querySelector('button[type="submit"]');
+    const ticketId = `TE-${Date.now()}`;
+    const eventoId = document.getElementById('eventoId').value;
+    const evento = obtenerEventos().find(item => String(item.id) === String(eventoId));
+
+    if (!evento) {
+        alert('El evento seleccionado no existe o fue removido.');
+        return;
+    }
+
+    const payload = {
+        action: 'crearReserva',
+        ticketId,
+        eventoId,
+        eventoTitulo: evento.titulo || 'Evento sin título',
+        nombreCompleto: document.getElementById('nombreReserva').value.trim(),
+        identificacion: document.getElementById('cedulaReserva').value.trim(),
+        correo: document.getElementById('correoReserva').value.trim(),
+        cantidad: Number(document.getElementById('cantidadTickets').value)
+    };
+
+    try {
+        if (botonEnviar) {
+            botonEnviar.disabled = true;
+            botonEnviar.textContent = 'Procesando reserva...';
+        }
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error('No se pudo conectar con el servidor.');
+        }
+
+        const resultado = await response.json();
+        if (!resultado.success) {
+            throw new Error(resultado.message || 'No fue posible registrar la reserva.');
+        }
+
+        const qrContainer = document.getElementById('qrContainer');
+        if (!qrContainer || typeof QRCode === 'undefined') {
+            throw new Error('No se pudo cargar la librería para generar el código QR.');
+        }
+
+        qrContainer.innerHTML = '<p><strong>Reserva confirmada.</strong><br>Presenta este código QR al ingresar.</p>';
+        const qrElemento = document.createElement('div');
+        qrContainer.appendChild(qrElemento);
+
+        new QRCode(qrElemento, {
+            text: ticketId,
+            width: 220,
+            height: 220,
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        form.reset();
+        alert(`Reserva creada correctamente. Tu código de ticket es: ${ticketId}`);
+    } catch (error) {
+        console.error('Error al crear la reserva:', error);
+        alert(error.message || 'Ocurrió un error al procesar la reserva.');
+    } finally {
+        if (botonEnviar) {
+            botonEnviar.disabled = false;
+            botonEnviar.textContent = 'Confirmar Reserva';
+        }
     }
 }
 
@@ -161,64 +243,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!formReserva) return;
 
-    // Procesar el envío de la reserva
-    formReserva.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const id = document.getElementById('eventoId').value;
-        const cantidadInput = document.getElementById('cantidadTickets') || document.getElementById('cantidadReserva');
-        const nombreInput = document.getElementById('nombreReserva') || document.getElementById('nombreCompleto');
-        const cedulaInput = document.getElementById('cedulaReserva') || document.getElementById('identificacionReserva');
-        const correoInput = document.getElementById('correoReserva');
-
-        const cantidad = parseInt(cantidadInput ? cantidadInput.value : 1, 10);
-        const nombre = nombreInput ? nombreInput.value.trim() : 'Sin nombre';
-        const identificacion = cedulaInput ? cedulaInput.value.trim() : 'S/I';
-        const correo = correoInput ? correoInput.value.trim() : 'S/N';
-
-        let eventos = obtenerEventos();
-        let eventoIndex = eventos.findIndex(e => String(e.id) === String(id));
-
-        if (eventoIndex !== -1) {
-            const eventoSeleccionado = eventos[eventoIndex];
-
-            if (eventoSeleccionado.aforo >= cantidad) {
-                // 1. Descontar el aforo
-                eventos[eventoIndex].aforo -= cantidad;
-                localStorage.setItem('eventos', JSON.stringify(eventos));
-
-                // 2. Crear y almacenar el registro en "reservas"
-                const reservasGuardadas = localStorage.getItem('reservas');
-                let reservas = [];
-                try {
-                    reservas = reservasGuardadas ? JSON.parse(reservasGuardadas) : [];
-                } catch (err) {
-                    reservas = [];
-                }
-
-                const nuevaReserva = {
-                    id: "res_" + Date.now(),
-                    eventoId: eventoSeleccionado.id,
-                    eventoTitulo: eventoSeleccionado.titulo,
-                    nombreCompleto: nombre,
-                    identificacion: identificacion,
-                    correo: correo,
-                    cantidad: cantidad,
-                    fechaReserva: new Date().toLocaleDateString('es-EC', { year: 'numeric', month: '2-digit', day: '2-digit' })
-                };
-
-                reservas.push(nuevaReserva);
-                localStorage.setItem('reservas', JSON.stringify(reservas));
-
-                // 3. Confirmación y actualización de interfaz
-                alert(`¡Reserva exitosa, ${nombre}!\nHas reservado ${cantidad} ticket(s) para "${eventoSeleccionado.titulo}".`);
-                cerrarModal();
-                renderizarEventos();
-            } else {
-                alert('No hay suficientes cupos disponibles para completar la cantidad solicitada.');
-            }
-        } else {
-            alert('El evento seleccionado no existe o fue removido.');
-        }
-    });
+    formReserva.addEventListener('submit', procesarReservaFormulario);
 });

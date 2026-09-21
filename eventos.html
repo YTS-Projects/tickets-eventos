@@ -20,6 +20,7 @@
                 <a href="index.html" class="btn-nav">Inicio</a>
                 <a href="eventos.html" class="btn-nav active">Ver Eventos</a>
                 <a href="asistentes.html" class="btn-nav">Registrados</a>
+                <a href="validar.html" class="btn-nav">Validar Tickets</a>
                 <a href="admin.html" class="btn-nav btn-admin">Administración</a>
             </div>
         </nav>
@@ -72,6 +73,8 @@
 
                 <button type="submit" class="btn-submit">Confirmar Reserva</button>
             </form>
+
+            <div id="qrContainer" class="qr-container" aria-live="polite"></div>
         </div>
     </div>
 
@@ -80,6 +83,8 @@
         <p>&copy; 2026 U.E.F. "Pablo Hannibal Vela Egüéz" - Todos los derechos reservados.</p>
     </footer>
 
+    <!-- Librería para generar el código QR del ticket -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Script de eventos y reservas -->
     <script src="js/eventos.js"></script>
 </body>

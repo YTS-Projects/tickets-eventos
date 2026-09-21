@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Validador de tickets QR de la U.E.F. Pablo Hannibal Vela Egüéz.">
+    <title>Validar Tickets - U.E.F. Pablo Hannibal Vela Egüéz</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar" aria-label="Navegación principal">
+            <div class="nav-brand">U.E.F. "Pablo Hannibal Vela Egüéz"</div>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn-nav">Inicio</a>
+                <a href="eventos.html" class="btn-nav">Ver Eventos</a>
+                <a href="asistentes.html" class="btn-nav">Registrados</a>
+                <a href="validar.html" class="btn-nav active">Validar Tickets</a>
+                <a href="admin.html" class="btn-nav btn-admin">Administración</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <section class="card-validacion" aria-labelledby="tituloValidacion">
+            <h2 id="tituloValidacion">Validador de Tickets</h2>
+            <p>Ingresa el código del ticket o conecta este formulario a un escáner QR.</p>
+
+            <form id="formValidarTicket" class="form-reserva">
+                <div class="form-group">
+                    <label for="ticketIdInput">Código del ticket:</label>
+                    <input type="text" id="ticketIdInput" placeholder="Ej. TE-1750000000000" required autocomplete="off">
+                </div>
+                <button type="submit" class="btn-submit">Validar Ticket</button>
+            </form>
+
+            <div id="resultadoValidacion" class="resultado-validacion" aria-live="assertive"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 U.E.F. "Pablo Hannibal Vela Egüéz" - Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="js/validar.js"></script>
+</body>
+</html>
