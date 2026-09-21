@@ -1,5 +1,8 @@
 // js/asistentes.js
 
+const API_URL = 'https://script.google.com/macros/s/AKfycbw4cn3p2Q6pltmQyI1c2sUisT_aitE7DeFWi8FIV-Vu73fCrcoEGQsQAMGZJUS_9cCB/exec';
+let reservasActuales = [];
+
 /**
  * Obtiene la lista de eventos desde localStorage.
  */
@@ -31,14 +34,36 @@ function obtenerReservas() {
 }
 
 /**
+ * Carga las reservas oficiales desde Google Sheets y actualiza la caché local.
+ */
+async function obtenerReservasNube() {
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'obtenerReservas' })
+    });
+
+    if (!response.ok) {
+        throw new Error('No se pudo consultar la lista de asistentes.');
+    }
+
+    const datos = await response.json();
+    if (!datos.success || !Array.isArray(datos.reservas)) {
+        throw new Error(datos.message || 'La API no devolvió reservas válidas.');
+    }
+
+    localStorage.setItem('reservas', JSON.stringify(datos.reservas));
+    return datos.reservas;
+}
+
+/**
  * Renderiza las tarjetas de eventos en la pantalla principal de asistentes.
  */
-function renderizarTarjetasAsistentes() {
+function renderizarTarjetasAsistentes(reservas = obtenerReservas()) {
     const grid = document.getElementById('eventosAsistentesGrid');
     if (!grid) return;
 
     const eventos = obtenerEventos();
-    const reservas = obtenerReservas();
+    reservasActuales = reservas;
 
     if (eventos.length === 0) {
         grid.innerHTML = '<p class="texto-sin-datos text-center">No hay eventos creados actualmente.</p>';
@@ -49,9 +74,7 @@ function renderizarTarjetasAsistentes() {
 
     grid.innerHTML = eventos.map(evento => {
         // Filtrar las reservas vinculadas a este evento
-        const reservasDelEvento = reservas.filter(r => 
-            String(r.eventoId) === String(evento.id) || r.eventoTitulo === evento.titulo
-        );
+        const reservasDelEvento = reservas.filter(r => String(r.eventoId) === String(evento.id));
 
         // Calcular el total de entradas/tickets reservados
         const totalTicketsReservados = reservasDelEvento.reduce((sum, r) => 
@@ -98,12 +121,10 @@ function abrirModalAsistentes(eventoId, eventoTitulo) {
 
     if (!modal || !tablaBody) return;
 
-    const reservas = obtenerReservas();
+    const reservas = reservasActuales;
 
     // Filtrar asistentes asignados a este evento
-    const asistentesFiltrados = reservas.filter(r => 
-        String(r.eventoId) === String(eventoId) || r.eventoTitulo === eventoTitulo
-    );
+    const asistentesFiltrados = reservas.filter(r => String(r.eventoId) === String(eventoId));
 
     if (modalTitulo) {
         modalTitulo.innerText = `Asistentes: ${eventoTitulo}`;
@@ -157,7 +178,7 @@ function cerrarModalAsistentes() {
 
 // Escuchadores de eventos para la inicialización y el control del modal
 document.addEventListener('DOMContentLoaded', () => {
-    renderizarTarjetasAsistentes();
+    cargarAsistentes();
 
     const modalAsistentes = document.getElementById('modalAsistentes');
 
@@ -177,3 +198,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+/**
+ * Prioriza la hoja de cálculo; si la red no está disponible, muestra la caché local.
+ */
+async function cargarAsistentes() {
+    try {
+        const reservas = await obtenerReservasNube();
+        renderizarTarjetasAsistentes(reservas);
+    } catch (error) {
+        console.warn('No se pudo consultar Google Sheets; se usará la caché local.', error);
+        renderizarTarjetasAsistentes(obtenerReservas());
+    }
+}

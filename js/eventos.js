@@ -174,6 +174,18 @@ async function procesarReservaFormulario(event) {
             throw new Error(resultado.message || 'No fue posible registrar la reserva.');
         }
 
+        guardarReservaEnCache({
+            id: ticketId,
+            ticketId,
+            eventoId,
+            eventoTitulo: payload.eventoTitulo,
+            nombreCompleto: payload.nombreCompleto,
+            identificacion: payload.identificacion,
+            correo: payload.correo,
+            cantidad: payload.cantidad,
+            fechaReserva: new Date().toLocaleString('es-EC')
+        });
+
         const qrContainer = document.getElementById('qrContainer');
         if (!qrContainer || typeof QRCode === 'undefined') {
             throw new Error('No se pudo cargar la librería para generar el código QR.');
@@ -200,6 +212,33 @@ async function procesarReservaFormulario(event) {
             botonEnviar.disabled = false;
             botonEnviar.textContent = 'Confirmar Reserva';
         }
+    }
+}
+
+/**
+ * Conserva una copia local para que la interfaz siga disponible sin conexión.
+ * Google Sheets continúa siendo la fuente de verdad para validar los tickets.
+ */
+function guardarReservaEnCache(reserva) {
+    let reservas = [];
+    try {
+        reservas = JSON.parse(localStorage.getItem('reservas') || '[]');
+        if (!Array.isArray(reservas)) reservas = [];
+    } catch (error) {
+        reservas = [];
+    }
+
+    if (!reservas.some(item => item.ticketId === reserva.ticketId)) {
+        reservas.push(reserva);
+        localStorage.setItem('reservas', JSON.stringify(reservas));
+    }
+
+    const eventos = obtenerEventos();
+    const indiceEvento = eventos.findIndex(item => String(item.id) === String(reserva.eventoId));
+    if (indiceEvento !== -1 && eventos[indiceEvento].aforo >= reserva.cantidad) {
+        eventos[indiceEvento].aforo -= reserva.cantidad;
+        localStorage.setItem('eventos', JSON.stringify(eventos));
+        renderizarEventos();
     }
 }
 
