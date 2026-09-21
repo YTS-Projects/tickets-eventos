@@ -160,7 +160,8 @@ async function procesarReservaFormulario(event) {
 
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            // Sin cabecera application/json para evitar una petición CORS OPTIONS.
+            // Apps Script recibe el texto JSON mediante e.postData.contents.
             body: JSON.stringify(payload)
         });
 
