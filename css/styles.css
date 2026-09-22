@@ -739,6 +739,17 @@ footer p {
     border: 1px solid #86efac;
 }
 
+.estado-verificado {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 1.45rem;
+    letter-spacing: 0.08em;
+}
+
+.alerta-validacion.permitido span {
+    display: block;
+}
+
 .alerta-validacion.denegado {
     color: #991b1b;
     background-color: #fee2e2;

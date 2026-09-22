@@ -3,6 +3,7 @@ let lectorQr = null;
 let escanerActivo = false;
 let validacionEnProceso = false;
 let inicioEscanerEnProceso = false;
+let detencionEscanerEnProceso = false;
 
 /**
  * Consulta y registra en la nube el uso de un ticket único.
@@ -35,7 +36,12 @@ async function validarTicketEnNube(ticketId) {
             const nombre = datos.nombreCompleto || datos.nombre || datos.asistente || 'Asistente';
             const evento = datos.evento || datos.eventoTitulo || 'Evento registrado';
             const cantidad = Number(datos.cantidad) || 1;
-            mensaje.textContent = `✓ Ingreso permitido: ${nombre} — Evento: ${evento} (${cantidad} ticket${cantidad === 1 ? '' : 's'})`;
+            const estado = document.createElement('strong');
+            estado.className = 'estado-verificado';
+            estado.textContent = 'VERIFICADO';
+            const detalle = document.createElement('span');
+            detalle.textContent = `${nombre} — ${evento} — ${cantidad} pase${cantidad === 1 ? '' : 's'}`;
+            mensaje.append(estado, detalle);
         } else if (datos.status === 'DENEGADO') {
             mensaje.classList.add('denegado');
             mensaje.textContent = '✗ Ingreso denegado: este ticket ya fue utilizado.';
@@ -48,12 +54,14 @@ async function validarTicketEnNube(ticketId) {
         }
 
         resultado.appendChild(mensaje);
+        return datos;
     } catch (error) {
         console.error('Error al validar ticket:', error);
         const mensaje = document.createElement('div');
         mensaje.className = 'alerta-validacion denegado';
         mensaje.textContent = error.message || 'Error de conexión con el servidor.';
         resultado.appendChild(mensaje);
+        return null;
     }
 }
 
@@ -62,60 +70,47 @@ function actualizarEstadoEscaner(mensaje) {
     if (estado) estado.textContent = mensaje;
 }
 
-function actualizarBotonesEscaner(activo) {
+function actualizarBotonesEscaner({ activo = false, mostrarInicio = true, mostrarOtro = false } = {}) {
     const iniciar = document.getElementById('btnIniciarEscaner');
     const detener = document.getElementById('btnDetenerEscaner');
-    if (iniciar) iniciar.hidden = activo;
+    const otro = document.getElementById('btnEscanearOtro');
+    if (iniciar) iniciar.hidden = !mostrarInicio;
     if (detener) detener.hidden = !activo;
+    if (otro) otro.hidden = !mostrarOtro;
 }
 
 /**
- * Procesa una lectura única: pausa la cámara, valida el ticket y la reanuda.
+ * Procesa una lectura única: apaga la cámara, valida el ticket y espera una orden
+ * explícita para volver a abrir el lector.
  */
 async function alDetectarQr(ticketId) {
     if (validacionEnProceso || !ticketId) return;
 
+    // Se bloquea antes de detener la cámara: algunos dispositivos pueden emitir
+    // más de un callback mientras el lector se está cerrando.
+    validacionEnProceso = true;
+
     const inputTicket = document.getElementById('ticketIdInput');
     if (inputTicket) inputTicket.value = ticketId.trim();
 
+    await detenerEscanerQr({ mostrarInicio: false });
+    actualizarEstadoEscaner('Código detectado. Validando ticket...');
     await procesarValidacion(ticketId.trim(), true);
+    actualizarEstadoEscaner('Lectura finalizada. Usa el botón para escanear otro ticket.');
+    actualizarBotonesEscaner({ mostrarInicio: false, mostrarOtro: true });
 }
 
 /**
  * Centraliza la validación manual y por cámara para evitar solicitudes duplicadas.
  */
-async function procesarValidacion(ticketId, desdeEscaner = false) {
-    if (validacionEnProceso || !ticketId) return;
-    validacionEnProceso = true;
+async function procesarValidacion(ticketId, yaBloqueada = false) {
+    if (!ticketId || (!yaBloqueada && validacionEnProceso)) return;
+    if (!yaBloqueada) validacionEnProceso = true;
 
     try {
-        if (desdeEscaner && lectorQr && escanerActivo) {
-            try {
-                lectorQr.pause(true);
-            } catch (error) {
-                console.warn('No se pudo pausar el escáner; continuará la validación.', error);
-            }
-        }
-        if (desdeEscaner) actualizarEstadoEscaner('Código detectado. Validando ticket...');
-        await validarTicketEnNube(ticketId);
+        return await validarTicketEnNube(ticketId);
     } finally {
-        if (desdeEscaner) {
-            // Muestra el resultado antes de volver a buscar otro código.
-            window.setTimeout(() => {
-                if (lectorQr && escanerActivo) {
-                    try {
-                        lectorQr.resume();
-                        actualizarEstadoEscaner('Cámara activa. Escanea el siguiente ticket.');
-                    } catch (error) {
-                        console.error('No se pudo reanudar el escáner:', error);
-                        actualizarEstadoEscaner('No se pudo reanudar la cámara. Iníciala nuevamente.');
-                    }
-                }
-                validacionEnProceso = false;
-            }, 1500);
-        } else {
-            validacionEnProceso = false;
-        }
+        validacionEnProceso = false;
     }
 }
 
@@ -132,6 +127,7 @@ async function iniciarEscanerQr() {
 
     inicioEscanerEnProceso = true;
     const botonIniciar = document.getElementById('btnIniciarEscaner');
+    actualizarBotonesEscaner({ mostrarInicio: false });
     if (botonIniciar) botonIniciar.disabled = true;
     actualizarEstadoEscaner('Solicitando acceso a la cámara...');
 
@@ -144,13 +140,14 @@ async function iniciarEscanerQr() {
             () => {}
         );
         escanerActivo = true;
-        actualizarBotonesEscaner(true);
+        actualizarBotonesEscaner({ activo: true, mostrarInicio: false });
         actualizarEstadoEscaner('Cámara activa. Coloca el código QR dentro del recuadro.');
     } catch (error) {
         console.error('No se pudo iniciar el escáner:', error);
         lectorQr = null;
         const visor = document.getElementById('qrReader');
         if (visor) visor.replaceChildren();
+        actualizarBotonesEscaner({ mostrarInicio: true });
         actualizarEstadoEscaner('No se pudo acceder a la cámara. Revisa los permisos e inténtalo otra vez.');
     } finally {
         inicioEscanerEnProceso = false;
@@ -158,19 +155,20 @@ async function iniciarEscanerQr() {
     }
 }
 
-async function detenerEscanerQr() {
-    if (!lectorQr || !escanerActivo) return;
+async function detenerEscanerQr(opciones = {}) {
+    if (!lectorQr || !escanerActivo || detencionEscanerEnProceso) return;
+    detencionEscanerEnProceso = true;
 
     try {
         await lectorQr.stop();
-        lectorQr.clear();
+        await lectorQr.clear();
     } catch (error) {
         console.error('No se pudo detener el escáner:', error);
     } finally {
         lectorQr = null;
         escanerActivo = false;
-        validacionEnProceso = false;
-        actualizarBotonesEscaner(false);
+        detencionEscanerEnProceso = false;
+        actualizarBotonesEscaner(opciones);
         actualizarEstadoEscaner('Cámara apagada.');
     }
 }
@@ -183,8 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const botonIniciar = document.getElementById('btnIniciarEscaner');
     const botonDetener = document.getElementById('btnDetenerEscaner');
+    const botonEscanearOtro = document.getElementById('btnEscanearOtro');
     if (botonIniciar) botonIniciar.addEventListener('click', iniciarEscanerQr);
-    if (botonDetener) botonDetener.addEventListener('click', detenerEscanerQr);
+    if (botonDetener) botonDetener.addEventListener('click', () => detenerEscanerQr());
+    if (botonEscanearOtro) botonEscanearOtro.addEventListener('click', iniciarEscanerQr);
 
     formulario.addEventListener('submit', async (event) => {
         event.preventDefault();
