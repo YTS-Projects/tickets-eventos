@@ -353,11 +353,6 @@ async function descargarComprobanteQR() {
             boton.textContent = 'Generando comprobante...';
         }
 
-        // Se abre durante el clic del usuario para evitar que los navegadores
-        // móviles bloqueen la vista previa como ventana emergente.
-        const necesitaVistaPrevia = esDispositivoMovil() && !navigator.share;
-        const vistaPrevia = necesitaVistaPrevia ? window.open('', '_blank') : null;
-
         await esperarImagenesComprobante(tarjeta);
         const canvas = await html2canvas(tarjeta, {
             backgroundColor: '#ffffff',
@@ -374,8 +369,7 @@ async function descargarComprobanteQR() {
         const nombreArchivo = `Comprobante_${ticketId}.png`;
         const archivo = new File([imagen], nombreArchivo, { type: 'image/png' });
 
-        const puedeCompartirArchivo = esDispositivoMovil() && navigator.share && navigator.canShare?.({ files: [archivo] });
-        if (puedeCompartirArchivo) {
+        if (esDispositivoMovil() && navigator.share) {
             // En móviles, la hoja nativa permite guardar el PNG o compartirlo sin
             // depender del atributo download, que Safari puede ignorar.
             try {
@@ -393,7 +387,6 @@ async function descargarComprobanteQR() {
         } else if (esDispositivoMovil()) {
             // En móvil el atributo download es inconsistente. La vista previa es
             // guardable en todos los navegadores mediante pulsación prolongada.
-            if (vistaPrevia) vistaPrevia.close();
             mostrarVistaPreviaComprobante(urlTemporal, nombreArchivo);
             return;
         } else {
