@@ -323,6 +323,11 @@ async function descargarComprobanteQR() {
             boton.textContent = 'Generando comprobante...';
         }
 
+        // Se abre durante el clic del usuario para evitar que los navegadores
+        // móviles bloqueen la vista previa como ventana emergente.
+        const necesitaVistaPrevia = esDispositivoMovil() && !navigator.share;
+        const vistaPrevia = necesitaVistaPrevia ? window.open('', '_blank') : null;
+
         await esperarImagenesComprobante(tarjeta);
         const canvas = await html2canvas(tarjeta, {
             backgroundColor: '#ffffff',
@@ -336,15 +341,41 @@ async function descargarComprobanteQR() {
         }
 
         const urlTemporal = URL.createObjectURL(imagen);
-        const enlace = document.createElement('a');
-        enlace.download = `Comprobante_${ticketId}.png`;
-        enlace.href = urlTemporal;
-        enlace.style.display = 'none';
-        document.body.appendChild(enlace);
-        enlace.click();
-        enlace.remove();
-        window.setTimeout(() => URL.revokeObjectURL(urlTemporal), 1000);
+        const nombreArchivo = `Comprobante_${ticketId}.png`;
+        const archivo = new File([imagen], nombreArchivo, { type: 'image/png' });
+
+        if (esDispositivoMovil() && navigator.share && navigator.canShare?.({ files: [archivo] })) {
+            // En móviles, la hoja nativa permite guardar el PNG o compartirlo sin
+            // depender del atributo download, que Safari puede ignorar.
+            await navigator.share({
+                title: 'Comprobante de reserva',
+                text: `Comprobante del ticket ${ticketId}`,
+                files: [archivo]
+            });
+        } else if (esDispositivoMovil()) {
+            // Respaldo para navegadores móviles sin compartir archivos: la imagen
+            // se abre para que el usuario la guarde desde las opciones del navegador.
+            if (vistaPrevia) {
+                vistaPrevia.location.href = urlTemporal;
+            } else {
+                const ventanaNueva = window.open(urlTemporal, '_blank');
+                if (!ventanaNueva) {
+                    throw new Error('El navegador bloqueó la vista previa del comprobante.');
+                }
+            }
+        } else {
+            const enlace = document.createElement('a');
+            enlace.download = nombreArchivo;
+            enlace.href = urlTemporal;
+            enlace.style.display = 'none';
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+        }
+
+        window.setTimeout(() => URL.revokeObjectURL(urlTemporal), 60000);
     } catch (error) {
+        if (error?.name === 'AbortError') return;
         console.error('No se pudo descargar el comprobante:', error);
         alert('Ocurrió un error al generar la imagen del comprobante.');
     } finally {
@@ -353,6 +384,10 @@ async function descargarComprobanteQR() {
             boton.textContent = 'Descargar comprobante PNG';
         }
     }
+}
+
+function esDispositivoMovil() {
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 }
 
 /** Espera a que el QR generado como imagen esté listo antes de capturar la tarjeta. */
