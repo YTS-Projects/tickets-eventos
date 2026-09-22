@@ -676,9 +676,23 @@ footer p {
     height: auto;
 }
 
-.comprobante-qr {
+.acciones-comprobante {
     margin-top: 1.25rem;
     text-align: center;
+}
+
+.acciones-comprobante[hidden] {
+    display: none !important;
+}
+
+.modal-comprobante {
+    max-width: 460px;
+    text-align: center;
+}
+
+.modal-comprobante > h3 {
+    color: var(--color-primario);
+    margin-bottom: 1rem;
 }
 
 .tarjeta-comprobante {

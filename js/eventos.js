@@ -229,9 +229,9 @@ function generarTicketId() {
  * Diseña un comprobante autocontenido con un segundo QR para poder exportarlo como PNG.
  */
 function prepararComprobanteQR(evento, nombreCompleto, ticketId) {
-    const comprobante = document.getElementById('comprobanteQR');
+    const acciones = document.getElementById('accionesComprobante');
     const tarjeta = document.getElementById('tarjetaComprobante');
-    if (!comprobante || !tarjeta || typeof QRCode === 'undefined') return;
+    if (!acciones || !tarjeta || typeof QRCode === 'undefined') return;
 
     tarjeta.replaceChildren();
     tarjeta.dataset.ticketId = ticketId;
@@ -268,7 +268,7 @@ function prepararComprobanteQR(evento, nombreCompleto, ticketId) {
         correctLevel: QRCode.CorrectLevel.H
     });
 
-    comprobante.hidden = false;
+    acciones.hidden = false;
 }
 
 function formatearFechaEvento(fecha) {
@@ -280,10 +280,28 @@ function formatearFechaEvento(fecha) {
 }
 
 function limpiarComprobanteQR() {
-    const comprobante = document.getElementById('comprobanteQR');
+    const acciones = document.getElementById('accionesComprobante');
     const tarjeta = document.getElementById('tarjetaComprobante');
     if (tarjeta) tarjeta.replaceChildren();
-    if (comprobante) comprobante.hidden = true;
+    if (acciones) acciones.hidden = true;
+    cerrarModalComprobante();
+}
+
+function mostrarModalComprobante() {
+    const modal = document.getElementById('modalComprobante');
+    const tarjeta = document.getElementById('tarjetaComprobante');
+    if (!modal || !tarjeta?.dataset.ticketId) return;
+
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function cerrarModalComprobante() {
+    const modal = document.getElementById('modalComprobante');
+    if (!modal) return;
+
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
 }
 
 /**
@@ -382,11 +400,19 @@ function guardarReservaEnCache(reserva) {
 function cerrarModal() {
     const modalReserva = document.getElementById('modalReserva');
     const formReserva = document.getElementById('formReserva');
+    const modalComprobante = document.getElementById('modalComprobante');
+    const botonMostrarComprobante = document.getElementById('btnMostrarComprobante');
     const botonDescargar = document.getElementById('btnDescargarComprobante');
 
     if (modalReserva) {
         modalReserva.style.display = 'none';
         modalReserva.setAttribute('aria-hidden', 'true');
+    }
+
+    if (modalComprobante) {
+        window.addEventListener('click', (e) => {
+            if (e.target === modalComprobante) cerrarModalComprobante();
+        });
     }
     if (formReserva) {
         formReserva.reset();
@@ -419,5 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!formReserva) return;
 
     formReserva.addEventListener('submit', procesarReservaFormulario);
+    if (botonMostrarComprobante) botonMostrarComprobante.addEventListener('click', mostrarModalComprobante);
     if (botonDescargar) botonDescargar.addEventListener('click', descargarComprobanteQR);
 });

@@ -77,12 +77,23 @@
 
             <div id="qrContainer" class="qr-container" aria-live="polite"></div>
 
-            <section id="comprobanteQR" class="comprobante-qr" hidden aria-live="polite">
-                <div id="tarjetaComprobante" class="tarjeta-comprobante"></div>
-                <button type="button" id="btnDescargarComprobante" class="btn-reservar">
-                    Descargar comprobante PNG
+            <div id="accionesComprobante" class="acciones-comprobante" hidden>
+                <button type="button" id="btnMostrarComprobante" class="btn-reservar">
+                    Ver comprobante y descargar PNG
                 </button>
-            </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA PREVIA DEL COMPROBANTE: se abre solo cuando el usuario la solicita -->
+    <div id="modalComprobante" class="modal" role="dialog" aria-labelledby="tituloComprobante" aria-hidden="true">
+        <div class="modal-content modal-comprobante">
+            <button type="button" class="close-modal" onclick="cerrarModalComprobante()" aria-label="Cerrar comprobante">&times;</button>
+            <h3 id="tituloComprobante">Comprobante de reserva</h3>
+            <div id="tarjetaComprobante" class="tarjeta-comprobante"></div>
+            <button type="button" id="btnDescargarComprobante" class="btn-reservar btn-block">
+                Descargar comprobante PNG
+            </button>
         </div>
     </div>
 
