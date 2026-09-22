@@ -97,6 +97,19 @@
         </div>
     </div>
 
+    <!-- Respaldo móvil: permite guardar la imagen generada directamente desde el navegador. -->
+    <div id="modalImagenComprobante" class="modal" role="dialog" aria-labelledby="tituloImagenComprobante" aria-hidden="true">
+        <div class="modal-content modal-imagen-comprobante">
+            <button type="button" class="close-modal" onclick="cerrarVistaPreviaComprobante()" aria-label="Cerrar imagen">&times;</button>
+            <h3 id="tituloImagenComprobante">Imagen del comprobante</h3>
+            <p>Mantén presionada la imagen para guardarla en tu dispositivo.</p>
+            <img id="imagenComprobanteGenerada" alt="Comprobante de reserva generado">
+            <a id="enlaceAbrirImagen" class="btn-reservar" target="_blank" rel="noopener">
+                Abrir imagen para guardar
+            </a>
+        </div>
+    </div>
+
     <!-- PIE DE PÁGINA -->
     <footer>
         <p>&copy; 2026 U.E.F. "Pablo Hannibal Vela Egüéz" - Todos los derechos reservados.</p>

@@ -23,6 +23,7 @@ const eventosIniciales = [
 ];
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbw4cn3p2Q6pltmQyI1c2sUisT_aitE7DeFWi8FIV-Vu73fCrcoEGQsQAMGZJUS_9cCB/exec';
+let urlVistaPreviaComprobante = null;
 
 /**
  * Carga eventos guardados desde LocalStorage o inicializa los valores por defecto.
@@ -304,6 +305,35 @@ function cerrarModalComprobante() {
     modal.setAttribute('aria-hidden', 'true');
 }
 
+function mostrarVistaPreviaComprobante(urlImagen, nombreArchivo) {
+    const modal = document.getElementById('modalImagenComprobante');
+    const imagen = document.getElementById('imagenComprobanteGenerada');
+    const enlace = document.getElementById('enlaceAbrirImagen');
+    if (!modal || !imagen || !enlace) return;
+
+    if (urlVistaPreviaComprobante) URL.revokeObjectURL(urlVistaPreviaComprobante);
+    urlVistaPreviaComprobante = urlImagen;
+    imagen.src = urlImagen;
+    enlace.href = urlImagen;
+    enlace.download = nombreArchivo;
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function cerrarVistaPreviaComprobante() {
+    const modal = document.getElementById('modalImagenComprobante');
+    const imagen = document.getElementById('imagenComprobanteGenerada');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    if (imagen) imagen.removeAttribute('src');
+    if (urlVistaPreviaComprobante) {
+        URL.revokeObjectURL(urlVistaPreviaComprobante);
+        urlVistaPreviaComprobante = null;
+    }
+}
+
 /**
  * Convierte la tarjeta de reserva confirmada en una imagen PNG descargable.
  */
@@ -344,25 +374,28 @@ async function descargarComprobanteQR() {
         const nombreArchivo = `Comprobante_${ticketId}.png`;
         const archivo = new File([imagen], nombreArchivo, { type: 'image/png' });
 
-        if (esDispositivoMovil() && navigator.share && navigator.canShare?.({ files: [archivo] })) {
+        const puedeCompartirArchivo = esDispositivoMovil() && navigator.share && navigator.canShare?.({ files: [archivo] });
+        if (puedeCompartirArchivo) {
             // En móviles, la hoja nativa permite guardar el PNG o compartirlo sin
             // depender del atributo download, que Safari puede ignorar.
-            await navigator.share({
-                title: 'Comprobante de reserva',
-                text: `Comprobante del ticket ${ticketId}`,
-                files: [archivo]
-            });
-        } else if (esDispositivoMovil()) {
-            // Respaldo para navegadores móviles sin compartir archivos: la imagen
-            // se abre para que el usuario la guarde desde las opciones del navegador.
-            if (vistaPrevia) {
-                vistaPrevia.location.href = urlTemporal;
-            } else {
-                const ventanaNueva = window.open(urlTemporal, '_blank');
-                if (!ventanaNueva) {
-                    throw new Error('El navegador bloqueó la vista previa del comprobante.');
-                }
+            try {
+                await navigator.share({
+                    title: 'Comprobante de reserva',
+                    text: `Comprobante del ticket ${ticketId}`,
+                    files: [archivo]
+                });
+            } catch (error) {
+                // Si el usuario cancela o el navegador no abre el selector,
+                // se ofrece la imagen para guardarla manualmente.
+                mostrarVistaPreviaComprobante(urlTemporal, nombreArchivo);
+                return;
             }
+        } else if (esDispositivoMovil()) {
+            // En móvil el atributo download es inconsistente. La vista previa es
+            // guardable en todos los navegadores mediante pulsación prolongada.
+            if (vistaPrevia) vistaPrevia.close();
+            mostrarVistaPreviaComprobante(urlTemporal, nombreArchivo);
+            return;
         } else {
             const enlace = document.createElement('a');
             enlace.download = nombreArchivo;
@@ -375,7 +408,6 @@ async function descargarComprobanteQR() {
 
         window.setTimeout(() => URL.revokeObjectURL(urlTemporal), 60000);
     } catch (error) {
-        if (error?.name === 'AbortError') return;
         console.error('No se pudo descargar el comprobante:', error);
         alert('Ocurrió un error al generar la imagen del comprobante.');
     } finally {
@@ -451,6 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const modalReserva = document.getElementById('modalReserva');
     const modalComprobante = document.getElementById('modalComprobante');
+    const modalImagenComprobante = document.getElementById('modalImagenComprobante');
     const formReserva = document.getElementById('formReserva');
     const botonMostrarComprobante = document.getElementById('btnMostrarComprobante');
     const botonDescargar = document.getElementById('btnDescargarComprobante');
@@ -470,6 +503,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (modalImagenComprobante) {
+        window.addEventListener('click', (e) => {
+            if (e.target === modalImagenComprobante) cerrarVistaPreviaComprobante();
+        });
+    }
+
     // Cerrar el modal presionado la tecla Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modalReserva && modalReserva.style.display === 'flex') {
@@ -477,6 +516,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (e.key === 'Escape' && modalComprobante && modalComprobante.style.display === 'flex') {
             cerrarModalComprobante();
+        }
+        if (e.key === 'Escape' && modalImagenComprobante && modalImagenComprobante.style.display === 'flex') {
+            cerrarVistaPreviaComprobante();
         }
     });
 
