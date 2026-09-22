@@ -32,12 +32,22 @@ function crearReserva(sheet, data) {
   lock.waitLock(5000);
 
   try {
-  const requeridos = ['ticketId', 'eventoId', 'eventoTitulo', 'nombreCompleto', 'identificacion', 'correo', 'cantidad'];
-  if (requeridos.some(campo => !data[campo])) {
+  const reserva = {
+    ticketId: String(data.ticketId || '').trim(),
+    eventoId: String(data.eventoId || '').trim(),
+    eventoTitulo: String(data.eventoTitulo || '').trim(),
+    nombreCompleto: String(data.nombreCompleto || '').trim(),
+    identificacion: String(data.identificacion || '').trim(),
+    correo: String(data.correo || '').trim(),
+    cantidad: Number(data.cantidad)
+  };
+
+  const requeridos = ['ticketId', 'eventoId', 'eventoTitulo', 'nombreCompleto', 'identificacion', 'correo'];
+  if (requeridos.some(campo => !reserva[campo])) {
     return responderJSON({ success: false, message: 'Faltan datos obligatorios de la reserva.' });
   }
 
-  const cantidad = Number(data.cantidad);
+  const cantidad = reserva.cantidad;
   if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > 5) {
     return responderJSON({ success: false, message: 'La cantidad de tickets no es válida.' });
   }
@@ -45,24 +55,24 @@ function crearReserva(sheet, data) {
   const ids = sheet.getLastRow() > 1
     ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat().map(String)
     : [];
-  if (ids.includes(String(data.ticketId))) {
+  if (ids.includes(reserva.ticketId)) {
     return responderJSON({ success: false, message: 'El ticket ya existe. Intenta reservar nuevamente.' });
   }
 
   sheet.appendRow([
-    data.ticketId,
-    data.eventoId,
-    data.eventoTitulo,
-    data.nombreCompleto,
-    data.identificacion,
-    data.correo,
+    reserva.ticketId,
+    reserva.eventoId,
+    reserva.eventoTitulo,
+    reserva.nombreCompleto,
+    reserva.identificacion,
+    reserva.correo,
     cantidad,
     'PENDIENTE',
     new Date().toLocaleString('es-EC'),
     ''
   ]);
 
-  return responderJSON({ success: true, ticketId: data.ticketId, message: 'Reserva registrada con éxito.' });
+  return responderJSON({ success: true, ticketId: reserva.ticketId, message: 'Reserva registrada con éxito.' });
   } finally {
     lock.releaseLock();
   }

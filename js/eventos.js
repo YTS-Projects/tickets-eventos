@@ -116,6 +116,7 @@ function abrirModal(id) {
         if (modalReserva) {
             const qrContainer = document.getElementById('qrContainer');
             if (qrContainer) qrContainer.innerHTML = '';
+            limpiarComprobanteQR();
             modalReserva.style.display = 'flex';
             modalReserva.setAttribute('aria-hidden', 'false');
         }
@@ -202,6 +203,8 @@ async function procesarReservaFormulario(event) {
             correctLevel: QRCode.CorrectLevel.H
         });
 
+        prepararComprobanteQR(evento, payload.nombreCompleto, ticketId);
+
         form.reset();
         alert(`Reserva creada correctamente. Tu código de ticket es: ${ticketId}`);
     } catch (error) {
@@ -220,6 +223,106 @@ function generarTicketId() {
         return `TE-${window.crypto.randomUUID()}`;
     }
     return `TE-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+/**
+ * Diseña un comprobante autocontenido con un segundo QR para poder exportarlo como PNG.
+ */
+function prepararComprobanteQR(evento, nombreCompleto, ticketId) {
+    const comprobante = document.getElementById('comprobanteQR');
+    const tarjeta = document.getElementById('tarjetaComprobante');
+    if (!comprobante || !tarjeta || typeof QRCode === 'undefined') return;
+
+    tarjeta.replaceChildren();
+    tarjeta.dataset.ticketId = ticketId;
+
+    const encabezado = document.createElement('div');
+    encabezado.className = 'comprobante-encabezado';
+    const titulo = document.createElement('h4');
+    titulo.textContent = evento.titulo || 'Evento institucional';
+    const subtitulo = document.createElement('p');
+    subtitulo.textContent = 'Comprobante de reserva';
+    encabezado.append(titulo, subtitulo);
+
+    const detalles = document.createElement('div');
+    detalles.className = 'comprobante-detalles';
+    const fecha = document.createElement('p');
+    fecha.textContent = `Fecha: ${formatearFechaEvento(evento.fecha)}`;
+    const hora = document.createElement('p');
+    hora.textContent = `Hora: ${evento.hora || 'Por definir'}`;
+    const asistente = document.createElement('p');
+    asistente.textContent = `Asistente: ${nombreCompleto}`;
+    const codigo = document.createElement('p');
+    codigo.className = 'comprobante-codigo';
+    codigo.textContent = `Código: ${ticketId}`;
+    detalles.append(fecha, hora, asistente, codigo);
+
+    const qr = document.createElement('div');
+    qr.className = 'comprobante-qr-imagen';
+
+    tarjeta.append(encabezado, detalles, qr);
+    new QRCode(qr, {
+        text: ticketId,
+        width: 180,
+        height: 180,
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+    comprobante.hidden = false;
+}
+
+function formatearFechaEvento(fecha) {
+    if (!fecha) return 'Por definir';
+    const fechaLocal = new Date(`${fecha}T00:00:00`);
+    return Number.isNaN(fechaLocal.getTime())
+        ? fecha
+        : fechaLocal.toLocaleDateString('es-EC', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function limpiarComprobanteQR() {
+    const comprobante = document.getElementById('comprobanteQR');
+    const tarjeta = document.getElementById('tarjetaComprobante');
+    if (tarjeta) tarjeta.replaceChildren();
+    if (comprobante) comprobante.hidden = true;
+}
+
+/**
+ * Convierte la tarjeta de reserva confirmada en una imagen PNG descargable.
+ */
+async function descargarComprobanteQR() {
+    const tarjeta = document.getElementById('tarjetaComprobante');
+    const boton = document.getElementById('btnDescargarComprobante');
+    const ticketId = tarjeta?.dataset.ticketId;
+
+    if (!tarjeta || !ticketId || typeof html2canvas === 'undefined') {
+        alert('No se pudo preparar el comprobante para descargar.');
+        return;
+    }
+
+    try {
+        if (boton) {
+            boton.disabled = true;
+            boton.textContent = 'Generando comprobante...';
+        }
+
+        const canvas = await html2canvas(tarjeta, {
+            backgroundColor: '#ffffff',
+            scale: 2,
+            useCORS: true
+        });
+        const enlace = document.createElement('a');
+        enlace.download = `Comprobante_${ticketId}.png`;
+        enlace.href = canvas.toDataURL('image/png');
+        enlace.click();
+    } catch (error) {
+        console.error('No se pudo descargar el comprobante:', error);
+        alert('Ocurrió un error al generar la imagen del comprobante.');
+    } finally {
+        if (boton) {
+            boton.disabled = false;
+            boton.textContent = 'Descargar comprobante PNG';
+        }
+    }
 }
 
 /**
@@ -255,6 +358,7 @@ function guardarReservaEnCache(reserva) {
 function cerrarModal() {
     const modalReserva = document.getElementById('modalReserva');
     const formReserva = document.getElementById('formReserva');
+    const botonDescargar = document.getElementById('btnDescargarComprobante');
 
     if (modalReserva) {
         modalReserva.style.display = 'none';
@@ -291,4 +395,5 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!formReserva) return;
 
     formReserva.addEventListener('submit', procesarReservaFormulario);
+    if (botonDescargar) botonDescargar.addEventListener('click', descargarComprobanteQR);
 });

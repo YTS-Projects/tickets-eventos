@@ -676,6 +676,51 @@ footer p {
     height: auto;
 }
 
+.comprobante-qr {
+    margin-top: 1.25rem;
+    text-align: center;
+}
+
+.tarjeta-comprobante {
+    margin: 0 auto 1rem;
+    padding: 1.5rem;
+    max-width: 390px;
+    background: #ffffff;
+    border: 2px solid var(--color-primario);
+    border-radius: 12px;
+    color: var(--color-texto);
+    text-align: left;
+}
+
+.comprobante-encabezado {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+    text-align: center;
+}
+
+.comprobante-encabezado h4 {
+    color: var(--color-primario);
+    font-size: 1.15rem;
+}
+
+.comprobante-encabezado p,
+.comprobante-detalles p {
+    margin: 0.35rem 0;
+}
+
+.comprobante-codigo {
+    overflow-wrap: anywhere;
+    font-family: Consolas, monospace;
+    font-weight: 700;
+}
+
+.comprobante-qr-imagen {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
 /* Pantalla y mensajes del validador de tickets */
 .card-validacion {
     width: 100%;
@@ -706,6 +751,12 @@ footer p {
 .scanner-controles .btn-reservar,
 .scanner-controles .btn-cerrar-modal {
     margin-top: 0;
+}
+
+/* El estilo reutilizable de los botones define display; se fuerza hidden para
+   que “Escanear otro ticket” aparezca solo después de una lectura QR. */
+.scanner-controles [hidden] {
+    display: none !important;
 }
 
 .estado-escaner {

@@ -158,13 +158,19 @@ async function iniciarEscanerQr() {
 async function detenerEscanerQr(opciones = {}) {
     if (!lectorQr || !escanerActivo || detencionEscanerEnProceso) return;
     detencionEscanerEnProceso = true;
+    const lectorActual = lectorQr;
 
     try {
-        await lectorQr.stop();
-        await lectorQr.clear();
+        await lectorActual.stop();
     } catch (error) {
         console.error('No se pudo detener el escáner:', error);
     } finally {
+        // clear() elimina el visor aun si el navegador reportó un problema al detener el stream.
+        try {
+            await lectorActual.clear();
+        } catch (error) {
+            console.warn('No se pudo limpiar completamente el visor del escáner:', error);
+        }
         lectorQr = null;
         escanerActivo = false;
         detencionEscanerEnProceso = false;
@@ -182,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const botonIniciar = document.getElementById('btnIniciarEscaner');
     const botonDetener = document.getElementById('btnDetenerEscaner');
     const botonEscanearOtro = document.getElementById('btnEscanearOtro');
+    actualizarBotonesEscaner();
     if (botonIniciar) botonIniciar.addEventListener('click', iniciarEscanerQr);
     if (botonDetener) botonDetener.addEventListener('click', () => detenerEscanerQr());
     if (botonEscanearOtro) botonEscanearOtro.addEventListener('click', iniciarEscanerQr);

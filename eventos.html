@@ -76,6 +76,13 @@
             </form>
 
             <div id="qrContainer" class="qr-container" aria-live="polite"></div>
+
+            <section id="comprobanteQR" class="comprobante-qr" hidden aria-live="polite">
+                <div id="tarjetaComprobante" class="tarjeta-comprobante"></div>
+                <button type="button" id="btnDescargarComprobante" class="btn-reservar">
+                    Descargar comprobante PNG
+                </button>
+            </section>
         </div>
     </div>
 
@@ -86,6 +93,8 @@
 
     <!-- Librería para generar el código QR del ticket -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Librería para convertir el comprobante en una imagen descargable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Script de eventos y reservas -->
     <script src="js/eventos.js"></script>
 </body>
