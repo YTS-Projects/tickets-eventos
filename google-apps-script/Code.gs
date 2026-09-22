@@ -28,6 +28,10 @@ function doPost(e) {
 }
 
 function crearReserva(sheet, data) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+
+  try {
   const requeridos = ['ticketId', 'eventoId', 'eventoTitulo', 'nombreCompleto', 'identificacion', 'correo', 'cantidad'];
   if (requeridos.some(campo => !data[campo])) {
     return responderJSON({ success: false, message: 'Faltan datos obligatorios de la reserva.' });
@@ -59,6 +63,9 @@ function crearReserva(sheet, data) {
   ]);
 
   return responderJSON({ success: true, ticketId: data.ticketId, message: 'Reserva registrada con éxito.' });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function obtenerReservas(sheet) {

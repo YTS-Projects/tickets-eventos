@@ -24,7 +24,20 @@
     <main class="main-container">
         <section class="card-validacion" aria-labelledby="tituloValidacion">
             <h2 id="tituloValidacion">Validador de Tickets</h2>
-            <p>Ingresa el código del ticket o conecta este formulario a un escáner QR.</p>
+            <p>Ingresa el código del ticket o escanea el QR con la cámara.</p>
+
+            <div class="scanner-controles">
+                <button type="button" id="btnIniciarEscaner" class="btn-reservar">
+                    Abrir cámara y escanear QR
+                </button>
+                <button type="button" id="btnDetenerEscaner" class="btn-cerrar-modal" hidden>
+                    Detener cámara
+                </button>
+            </div>
+            <p id="estadoEscaner" class="estado-escaner" aria-live="polite">
+                Cámara apagada.
+            </p>
+            <div id="qrReader" class="qr-reader" aria-label="Vista de cámara para escanear códigos QR"></div>
 
             <form id="formValidarTicket" class="form-reserva">
                 <div class="form-group">
@@ -42,6 +55,7 @@
         <p>&copy; 2026 U.E.F. "Pablo Hannibal Vela Egüéz" - Todos los derechos reservados.</p>
     </footer>
 
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src="js/validar.js"></script>
 </body>
 </html>

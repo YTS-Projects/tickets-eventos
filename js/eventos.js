@@ -35,7 +35,7 @@ function obtenerEventos() {
     }
     try {
         const parsed = JSON.parse(almacenados);
-        return Array.isArray(parsed) && parsed.length > 0 ? parsed : eventosIniciales;
+        return Array.isArray(parsed) ? parsed : eventosIniciales;
     } catch (e) {
         console.error("Error al parsear eventos desde localStorage:", e);
         return eventosIniciales;
@@ -132,7 +132,7 @@ async function procesarReservaFormulario(event) {
 
     const form = event.currentTarget;
     const botonEnviar = form.querySelector('button[type="submit"]');
-    const ticketId = `TE-${Date.now()}`;
+    const ticketId = generarTicketId();
     const eventoId = document.getElementById('eventoId').value;
     const evento = obtenerEventos().find(item => String(item.id) === String(eventoId));
 
@@ -213,6 +213,13 @@ async function procesarReservaFormulario(event) {
             botonEnviar.textContent = 'Confirmar Reserva';
         }
     }
+}
+
+function generarTicketId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+        return `TE-${window.crypto.randomUUID()}`;
+    }
+    return `TE-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 /**

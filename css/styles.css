@@ -695,6 +695,38 @@ footer p {
     margin-top: 1.25rem;
 }
 
+.scanner-controles {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 1.25rem 0 0.5rem;
+}
+
+.scanner-controles .btn-reservar,
+.scanner-controles .btn-cerrar-modal {
+    margin-top: 0;
+}
+
+.estado-escaner {
+    min-height: 1.25rem;
+    color: var(--color-texto-suave);
+    font-size: 0.9rem;
+}
+
+.qr-reader {
+    width: 100%;
+    max-width: 360px;
+    margin: 1rem auto 0;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.qr-reader video {
+    width: 100% !important;
+    height: auto !important;
+}
+
 .alerta-validacion {
     padding: 1rem;
     border-radius: 8px;

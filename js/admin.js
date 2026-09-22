@@ -10,7 +10,7 @@ let idEliminarTemporal = null;
 // Eventos predeterminados iniciales
 const eventosInicialesAdmin = [
     {
-        id: 1,
+        id: "ev_inicial_1",
         titulo: "Ceremonia de Juramento a la Bandera",
         fecha: "2026-09-26",
         hora: "08:30 AM",
@@ -19,7 +19,7 @@ const eventosInicialesAdmin = [
         imagen: "img/bandera.jpg"
     },
     {
-        id: 2,
+        id: "ev_inicial_2",
         titulo: "Feria de Ciencias y Tecnología",
         fecha: "2026-10-15",
         hora: "10:00 AM",
@@ -40,7 +40,7 @@ function obtenerEventos() {
     }
     try {
         const parsed = JSON.parse(almacenados);
-        return Array.isArray(parsed) && parsed.length > 0 ? parsed : eventosInicialesAdmin;
+        return Array.isArray(parsed) ? parsed : eventosInicialesAdmin;
     } catch (e) {
         console.error("Error al obtener eventos de localStorage:", e);
         return eventosInicialesAdmin;
