@@ -305,15 +305,27 @@ async function descargarComprobanteQR() {
             boton.textContent = 'Generando comprobante...';
         }
 
+        await esperarImagenesComprobante(tarjeta);
         const canvas = await html2canvas(tarjeta, {
             backgroundColor: '#ffffff',
             scale: 2,
             useCORS: true
         });
+
+        const imagen = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        if (!imagen) {
+            throw new Error('No se pudo convertir el comprobante a PNG.');
+        }
+
+        const urlTemporal = URL.createObjectURL(imagen);
         const enlace = document.createElement('a');
         enlace.download = `Comprobante_${ticketId}.png`;
-        enlace.href = canvas.toDataURL('image/png');
+        enlace.href = urlTemporal;
+        enlace.style.display = 'none';
+        document.body.appendChild(enlace);
         enlace.click();
+        enlace.remove();
+        window.setTimeout(() => URL.revokeObjectURL(urlTemporal), 1000);
     } catch (error) {
         console.error('No se pudo descargar el comprobante:', error);
         alert('Ocurrió un error al generar la imagen del comprobante.');
@@ -323,6 +335,18 @@ async function descargarComprobanteQR() {
             boton.textContent = 'Descargar comprobante PNG';
         }
     }
+}
+
+/** Espera a que el QR generado como imagen esté listo antes de capturar la tarjeta. */
+function esperarImagenesComprobante(contenedor) {
+    const imagenes = Array.from(contenedor.querySelectorAll('img'));
+    return Promise.all(imagenes.map(imagen => {
+        if (imagen.complete && imagen.naturalWidth > 0) return Promise.resolve();
+        return new Promise(resolve => {
+            imagen.addEventListener('load', resolve, { once: true });
+            imagen.addEventListener('error', resolve, { once: true });
+        });
+    }));
 }
 
 /**
