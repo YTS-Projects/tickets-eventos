@@ -353,6 +353,10 @@ async function descargarComprobanteQR() {
             boton.textContent = 'Generando comprobante...';
         }
 
+        // El tab se abre de forma síncrona durante el toque. Así iOS/Android no
+        // lo bloquean cuando html2canvas termina de generar la imagen.
+        const destinoMovil = esDispositivoMovil() ? abrirDestinoGuardadoMovil() : null;
+
         await esperarImagenesComprobante(tarjeta);
         const canvas = await html2canvas(tarjeta, {
             backgroundColor: '#ffffff',
@@ -368,6 +372,7 @@ async function descargarComprobanteQR() {
         const urlTemporal = URL.createObjectURL(imagen);
         const nombreArchivo = `Comprobante_${ticketId}.png`;
         const archivo = new File([imagen], nombreArchivo, { type: 'image/png' });
+        const imagenBase64 = esDispositivoMovil() ? canvas.toDataURL('image/png') : null;
 
         if (esDispositivoMovil() && navigator.share) {
             // En móviles, la hoja nativa permite guardar el PNG o compartirlo sin
@@ -378,16 +383,25 @@ async function descargarComprobanteQR() {
                     text: `Comprobante del ticket ${ticketId}`,
                     files: [archivo]
                 });
+                if (destinoMovil && !destinoMovil.closed) destinoMovil.close();
             } catch (error) {
                 // Si el usuario cancela o el navegador no abre el selector,
-                // se ofrece la imagen para guardarla manualmente.
-                mostrarVistaPreviaComprobante(urlTemporal, nombreArchivo);
+                // se entrega la imagen en el tab ya autorizado por el toque.
+                if (destinoMovil) {
+                    mostrarImagenEnDestinoMovil(destinoMovil, imagenBase64, nombreArchivo);
+                } else {
+                    mostrarVistaPreviaComprobante(urlTemporal, nombreArchivo);
+                }
                 return;
             }
         } else if (esDispositivoMovil()) {
             // En móvil el atributo download es inconsistente. La vista previa es
             // guardable en todos los navegadores mediante pulsación prolongada.
-            mostrarVistaPreviaComprobante(urlTemporal, nombreArchivo);
+            if (destinoMovil) {
+                mostrarImagenEnDestinoMovil(destinoMovil, imagenBase64, nombreArchivo);
+            } else {
+                mostrarVistaPreviaComprobante(urlTemporal, nombreArchivo);
+            }
             return;
         } else {
             const enlace = document.createElement('a');
@@ -409,6 +423,35 @@ async function descargarComprobanteQR() {
             boton.textContent = 'Descargar comprobante PNG';
         }
     }
+}
+
+/** Abre una pestaña vacía durante el gesto del usuario para evitar bloqueos móviles. */
+function abrirDestinoGuardadoMovil() {
+    const destino = window.open('', '_blank');
+    if (!destino) return null;
+
+    destino.document.title = 'Generando comprobante';
+    destino.document.body.textContent = 'Generando tu comprobante…';
+    return destino;
+}
+
+/** Muestra un PNG base64 en una pestaña autorizada para guardarlo con pulsación prolongada. */
+function mostrarImagenEnDestinoMovil(destino, imagenBase64, nombreArchivo) {
+    if (!destino || destino.closed || !imagenBase64) return;
+
+    const documento = destino.document;
+    documento.open();
+    documento.title = nombreArchivo;
+    const estilo = documento.createElement('style');
+    estilo.textContent = 'body{margin:0;padding:20px;background:#f7fafc;color:#1a365d;font:16px Arial;text-align:center}img{display:block;max-width:100%;height:auto;margin:16px auto}p{line-height:1.4}';
+    const mensaje = documento.createElement('p');
+    mensaje.textContent = 'Mantén presionada la imagen y elige “Guardar imagen” o “Guardar en Fotos”.';
+    const imagen = documento.createElement('img');
+    imagen.src = imagenBase64;
+    imagen.alt = 'Comprobante de reserva';
+    documento.head.appendChild(estilo);
+    documento.body.replaceChildren(mensaje, imagen);
+    documento.close();
 }
 
 function esDispositivoMovil() {
