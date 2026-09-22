@@ -347,6 +347,7 @@ async function descargarComprobanteQR() {
         return;
     }
 
+    let destinoMovil = null;
     try {
         if (boton) {
             boton.disabled = true;
@@ -355,67 +356,43 @@ async function descargarComprobanteQR() {
 
         // El tab se abre de forma síncrona durante el toque. Así iOS/Android no
         // lo bloquean cuando html2canvas termina de generar la imagen.
-        const destinoMovil = esDispositivoMovil() ? abrirDestinoGuardadoMovil() : null;
+        destinoMovil = esDispositivoMovil() ? abrirDestinoGuardadoMovil() : null;
 
-        await esperarImagenesComprobante(tarjeta);
-        const canvas = await html2canvas(tarjeta, {
-            backgroundColor: '#ffffff',
-            scale: 2,
-            useCORS: true
-        });
-
-        const imagen = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-        if (!imagen) {
-            throw new Error('No se pudo convertir el comprobante a PNG.');
-        }
-
-        const urlTemporal = URL.createObjectURL(imagen);
+        // La carga de imágenes data: del QR puede no emitir load en algunos
+        // móviles. Nunca se bloquea la generación indefinidamente por ello.
+        await esperarImagenesComprobante(tarjeta, 2500);
         const nombreArchivo = `Comprobante_${ticketId}.png`;
-        const archivo = new File([imagen], nombreArchivo, { type: 'image/png' });
-        const imagenBase64 = esDispositivoMovil() ? canvas.toDataURL('image/png') : null;
+        const canvas = await generarCanvasComprobante(tarjeta, 15000);
 
-        if (esDispositivoMovil() && navigator.share) {
-            // En móviles, la hoja nativa permite guardar el PNG o compartirlo sin
-            // depender del atributo download, que Safari puede ignorar.
-            try {
-                await navigator.share({
-                    title: 'Comprobante de reserva',
-                    text: `Comprobante del ticket ${ticketId}`,
-                    files: [archivo]
-                });
-                if (destinoMovil && !destinoMovil.closed) destinoMovil.close();
-            } catch (error) {
-                // Si el usuario cancela o el navegador no abre el selector,
-                // se entrega la imagen en el tab ya autorizado por el toque.
-                if (destinoMovil) {
-                    mostrarImagenEnDestinoMovil(destinoMovil, imagenBase64, nombreArchivo);
-                } else {
-                    mostrarVistaPreviaComprobante(urlTemporal, nombreArchivo);
-                }
-                return;
-            }
-        } else if (esDispositivoMovil()) {
-            // En móvil el atributo download es inconsistente. La vista previa es
-            // guardable en todos los navegadores mediante pulsación prolongada.
+        if (esDispositivoMovil()) {
+            // toDataURL es síncrono y no depende de Blob, File ni navigator.share.
+            // Es la ruta más compatible con Safari iOS y Chrome Android: la pestaña
+            // que se abrió durante el toque recibe inmediatamente un PNG guardable.
+            const imagenBase64 = canvas.toDataURL('image/png');
             if (destinoMovil) {
                 mostrarImagenEnDestinoMovil(destinoMovil, imagenBase64, nombreArchivo);
             } else {
-                mostrarVistaPreviaComprobante(urlTemporal, nombreArchivo);
+                mostrarVistaPreviaComprobanteDesdeDataUrl(imagenBase64, nombreArchivo);
             }
             return;
-        } else {
-            const enlace = document.createElement('a');
-            enlace.download = nombreArchivo;
-            enlace.href = urlTemporal;
-            enlace.style.display = 'none';
-            document.body.appendChild(enlace);
-            enlace.click();
-            enlace.remove();
         }
+
+        const imagen = await convertirCanvasABlob(canvas);
+        const urlTemporal = URL.createObjectURL(imagen);
+        const enlace = document.createElement('a');
+        enlace.download = nombreArchivo;
+        enlace.href = urlTemporal;
+        enlace.style.display = 'none';
+        document.body.appendChild(enlace);
+        enlace.click();
+        enlace.remove();
 
         window.setTimeout(() => URL.revokeObjectURL(urlTemporal), 60000);
     } catch (error) {
         console.error('No se pudo descargar el comprobante:', error);
+        if (destinoMovil && !destinoMovil.closed) {
+            mostrarErrorEnDestinoMovil(destinoMovil);
+        }
         alert('Ocurrió un error al generar la imagen del comprobante.');
     } finally {
         if (boton) {
@@ -443,15 +420,65 @@ function mostrarImagenEnDestinoMovil(destino, imagenBase64, nombreArchivo) {
     documento.open();
     documento.title = nombreArchivo;
     const estilo = documento.createElement('style');
-    estilo.textContent = 'body{margin:0;padding:20px;background:#f7fafc;color:#1a365d;font:16px Arial;text-align:center}img{display:block;max-width:100%;height:auto;margin:16px auto}p{line-height:1.4}';
+    estilo.textContent = 'body{margin:0;padding:20px;background:#f7fafc;color:#1a365d;font:16px Arial;text-align:center}img{display:block;max-width:100%;height:auto;margin:16px auto}p{line-height:1.4}.guardar{display:inline-block;padding:12px 16px;background:#1a4c80;color:white;border-radius:6px;text-decoration:none;font-weight:bold}';
     const mensaje = documento.createElement('p');
-    mensaje.textContent = 'Mantén presionada la imagen y elige “Guardar imagen” o “Guardar en Fotos”.';
+    mensaje.textContent = 'Mantén presionada la imagen y elige “Guardar imagen” o “Guardar en Fotos”. Si tu navegador lo permite, usa también el botón Guardar PNG.';
     const imagen = documento.createElement('img');
     imagen.src = imagenBase64;
     imagen.alt = 'Comprobante de reserva';
+    const enlaceGuardar = documento.createElement('a');
+    enlaceGuardar.className = 'guardar';
+    enlaceGuardar.href = imagenBase64;
+    enlaceGuardar.download = nombreArchivo;
+    enlaceGuardar.textContent = 'Guardar PNG';
     documento.head.appendChild(estilo);
-    documento.body.replaceChildren(mensaje, imagen);
+    documento.body.replaceChildren(mensaje, imagen, enlaceGuardar);
     documento.close();
+}
+
+function mostrarVistaPreviaComprobanteDesdeDataUrl(imagenBase64, nombreArchivo) {
+    const modal = document.getElementById('modalImagenComprobante');
+    const imagen = document.getElementById('imagenComprobanteGenerada');
+    const enlace = document.getElementById('enlaceAbrirImagen');
+    if (!modal || !imagen || !enlace) return;
+
+    imagen.src = imagenBase64;
+    enlace.href = imagenBase64;
+    enlace.download = nombreArchivo;
+    modal.style.display = 'block';
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function convertirCanvasABlob(canvas) {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob(imagen => {
+            if (imagen) resolve(imagen);
+            else reject(new Error('No se pudo convertir el comprobante a PNG.'));
+        }, 'image/png');
+    });
+}
+
+function mostrarErrorEnDestinoMovil(destino) {
+    const documento = destino.document;
+    documento.open();
+    documento.title = 'No se pudo generar el comprobante';
+    documento.body.textContent = 'No se pudo generar la imagen. Regresa a la página e inténtalo nuevamente.';
+    documento.close();
+}
+
+function generarCanvasComprobante(tarjeta, tiempoMaximo) {
+    return Promise.race([
+        html2canvas(tarjeta, {
+            backgroundColor: '#ffffff',
+            // En teléfono una escala 1 reduce el consumo de memoria y evita que
+            // la generación quede bloqueada; la tarjeta sigue siendo legible.
+            scale: esDispositivoMovil() ? 1 : 2,
+            useCORS: true
+        }),
+        new Promise((_, reject) => {
+            window.setTimeout(() => reject(new Error('La generación del comprobante tardó demasiado.')), tiempoMaximo);
+        })
+    ]);
 }
 
 function esDispositivoMovil() {
@@ -459,15 +486,20 @@ function esDispositivoMovil() {
 }
 
 /** Espera a que el QR generado como imagen esté listo antes de capturar la tarjeta. */
-function esperarImagenesComprobante(contenedor) {
+function esperarImagenesComprobante(contenedor, tiempoMaximo = 2500) {
     const imagenes = Array.from(contenedor.querySelectorAll('img'));
-    return Promise.all(imagenes.map(imagen => {
+    const esperaImagenes = Promise.all(imagenes.map(imagen => {
         if (imagen.complete && imagen.naturalWidth > 0) return Promise.resolve();
         return new Promise(resolve => {
             imagen.addEventListener('load', resolve, { once: true });
             imagen.addEventListener('error', resolve, { once: true });
         });
     }));
+
+    return Promise.race([
+        esperaImagenes,
+        new Promise(resolve => window.setTimeout(resolve, tiempoMaximo))
+    ]);
 }
 
 /**
