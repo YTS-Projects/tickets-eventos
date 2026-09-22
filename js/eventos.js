@@ -400,19 +400,10 @@ function guardarReservaEnCache(reserva) {
 function cerrarModal() {
     const modalReserva = document.getElementById('modalReserva');
     const formReserva = document.getElementById('formReserva');
-    const modalComprobante = document.getElementById('modalComprobante');
-    const botonMostrarComprobante = document.getElementById('btnMostrarComprobante');
-    const botonDescargar = document.getElementById('btnDescargarComprobante');
 
     if (modalReserva) {
         modalReserva.style.display = 'none';
         modalReserva.setAttribute('aria-hidden', 'true');
-    }
-
-    if (modalComprobante) {
-        window.addEventListener('click', (e) => {
-            if (e.target === modalComprobante) cerrarModalComprobante();
-        });
     }
     if (formReserva) {
         formReserva.reset();
@@ -424,7 +415,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderizarEventos();
 
     const modalReserva = document.getElementById('modalReserva');
+    const modalComprobante = document.getElementById('modalComprobante');
     const formReserva = document.getElementById('formReserva');
+    const botonMostrarComprobante = document.getElementById('btnMostrarComprobante');
+    const botonDescargar = document.getElementById('btnDescargarComprobante');
 
     // Cerrar el modal al hacer clic fuera del contenido del formulario
     if (modalReserva) {
@@ -435,10 +429,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (modalComprobante) {
+        window.addEventListener('click', (e) => {
+            if (e.target === modalComprobante) cerrarModalComprobante();
+        });
+    }
+
     // Cerrar el modal presionado la tecla Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modalReserva && modalReserva.style.display === 'flex') {
             cerrarModal();
+        }
+        if (e.key === 'Escape' && modalComprobante && modalComprobante.style.display === 'flex') {
+            cerrarModalComprobante();
         }
     });
 
