@@ -1,27 +1,5 @@
 // js/eventos.js
 
-// Datos iniciales de prueba si LocalStorage está vacío
-const eventosIniciales = [
-    {
-        id: "ev_inicial_1",
-        titulo: "Ceremonia de Juramento a la Bandera",
-        fecha: "2026-09-26",
-        hora: "08:30 AM",
-        lugar: "Patio Principal de la Institución",
-        aforo: 150,
-        imagen: "img/bandera.jpg"
-    },
-    {
-        id: "ev_inicial_2",
-        titulo: "Feria de Ciencias y Tecnología",
-        fecha: "2026-10-15",
-        hora: "10:00 AM",
-        lugar: "Auditorio Institucional",
-        aforo: 80,
-        imagen: "img/tech.jpg"
-    }
-];
-
 const API_URL = 'https://script.google.com/macros/s/AKfycbw4cn3p2Q6pltmQyI1c2sUisT_aitE7DeFWi8FIV-Vu73fCrcoEGQsQAMGZJUS_9cCB/exec';
 let urlVistaPreviaComprobante = null;
 let descargaComprobanteEnProceso = false;
@@ -32,15 +10,17 @@ let descargaComprobanteEnProceso = false;
 function obtenerEventos() {
     const almacenados = localStorage.getItem('eventos');
     if (!almacenados) { 
-        localStorage.setItem('eventos', JSON.stringify(eventosIniciales));
-        return eventosIniciales;
+        const predeterminados = copiarEventosPredeterminados();
+        localStorage.setItem('eventos', JSON.stringify(predeterminados));
+        localStorage.setItem('versionEventosPredeterminados', VERSION_EVENTOS_PREDETERMINADOS);
+        return predeterminados;
     }
     try {
         const parsed = JSON.parse(almacenados);
-        return Array.isArray(parsed) ? parsed : eventosIniciales;
+        return Array.isArray(parsed) ? actualizarEventosPredeterminados(parsed) : copiarEventosPredeterminados();
     } catch (e) {
         console.error("Error al parsear eventos desde localStorage:", e);
-        return eventosIniciales;
+        return copiarEventosPredeterminados();
     }
 }
 

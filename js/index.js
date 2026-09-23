@@ -1,25 +1,5 @@
 // js/index.js
 
-// Eventos predeterminados por si no hay datos en localStorage
-const eventosDefectoIndex = [
-    {
-        id: "ev_inicial_1",
-        titulo: "Ceremonia de Juramento a la Bandera",
-        fecha: "2026-09-26",
-        hora: "08:30 AM",
-        lugar: "Patio Principal de la Institución",
-        aforo: 150
-    },
-    {
-        id: "ev_inicial_2",
-        titulo: "Feria de Ciencias y Tecnología",
-        fecha: "2026-10-15",
-        hora: "10:00 AM",
-        lugar: "Auditorio Institucional",
-        aforo: 80
-    }
-];
-
 let indiceActual = 0;
 let intervaloCarrusel = null;
 
@@ -29,15 +9,17 @@ let intervaloCarrusel = null;
 function obtenerEventosIndex() {
     const almacenados = localStorage.getItem('eventos');
     if (!almacenados) {
-        localStorage.setItem('eventos', JSON.stringify(eventosDefectoIndex));
-        return eventosDefectoIndex;
+        const predeterminados = copiarEventosPredeterminados();
+        localStorage.setItem('eventos', JSON.stringify(predeterminados));
+        localStorage.setItem('versionEventosPredeterminados', VERSION_EVENTOS_PREDETERMINADOS);
+        return predeterminados;
     }
     try {
         const parsed = JSON.parse(almacenados);
-        return Array.isArray(parsed) ? parsed : eventosDefectoIndex;
+        return Array.isArray(parsed) ? actualizarEventosPredeterminados(parsed) : copiarEventosPredeterminados();
     } catch (e) {
         console.error("Error al obtener eventos de localStorage:", e);
-        return eventosDefectoIndex;
+        return copiarEventosPredeterminados();
     }
 }
 
